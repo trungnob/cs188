@@ -6,7 +6,7 @@ def shopSmart(orderList, fruitShops):
         orderList: List of (fruit, numPound) tuples
         fruitShops: List of FruitShops
     """    
-    #TODO: your implementation here
+    #TODO: your implemenstation here
     shopReturn=fruitShops[0];
     min =shopReturn.getPriceOfOrder(orderList) 
     for eachShop in fruitShops:
