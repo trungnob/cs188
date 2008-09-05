@@ -1,4 +1,3 @@
-#Trung Tran cs188-iy
 fruitPrices = {'apples':2.00, 'oranges': 1.50, 'pears': 1.75, 
               'limes':0.75,'strawberries':1.00}
 
