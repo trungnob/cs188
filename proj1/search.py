@@ -65,17 +65,95 @@ def depthFirstSearch(problem):
   """
   "*** YOUR CODE HERE ***"
   from game import Directions
-  visit=set()
-  fringe=
-  problem.getSuccessors()
-  util.raiseNotDefined()
+  import stateNode
+  visitedStates=set()
+  fringe=util.Stack()
+  listActions=[];
+  state=problem.getStartState()
+  cost=0;
+  
+  node=(state, listActions, cost)
+  fringe.push(node)
+  while (1):
+      if fringe.isEmpty(): return None
+      state,listActions,cost=node=fringe.pop()
+      if problem.isGoalState(state):
+          print(listActions)
+          print(cost)
+          return listActions
+      listSucessors=problem.getSuccessors(state);
+      saveCost=cost 
+      for sucFn in listSucessors:
+          nxtState, nxtAction, newCost=sucFn
+          cost=saveCost 
+          if nxtState not in visitedStates:
+              visitedStates.add(nxtState)
+              newListActions=[]
+              for stuffs in listActions: 
+                newListActions.append(stuffs)
+              newListActions.append(nxtAction)
+              cost+=newCost
+              fringe.push((nxtState,newListActions,cost))
+    
+      
 
 def breadthFirstSearch(problem):
-  "Search the shallowest nodes in the search tree first. [p 74]"
-  "*** YOUR CODE HERE ***"
-  util.raiseNotDefined()
+  from game import Directions
+  visitedStates=set()
+  fringe=util.Queue()
+  listActions=[];
+  state=problem.getStartState()
+  cost=0;
+  node=(state, listActions, cost)
+  fringe.push(node)
+  while (1):
+      if fringe.isEmpty(): return None
+      state,listActions,cost=node=fringe.pop()
+      if problem.isGoalState(state):
+          print(listActions)
+          print(cost)
+          return listActions
+      listSucessors=problem.getSuccessors(state); 
+      for sucFn in listSucessors:
+          nxtState, nxtAction, newCost=sucFn 
+          if nxtState not in visitedStates:
+              visitedStates.add(nxtState)
+              newListActions=[]
+              
+              for stuffs in listActions: 
+                newListActions.append(stuffs)
+              newListActions.append(nxtAction)
+              cost+=newCost
+              fringe.push((nxtState,newListActions,cost))
       
 def uniformCostSearch(problem):
+  from game import Directions
+  visitedStates=set()
+  fringe=util.PriorityQueue()
+  listActions=[];
+  state=problem.getStartState()
+  cost=0;
+  node=(state, listActions, cost)
+  fringe.push(node,cost)
+  while (1):
+      if fringe.isEmpty(): return None
+      state,listActions,cost=node=fringe.pop()
+      if problem.isGoalState(state):
+          print(listActions)
+          print(cost)
+          return listActions
+      listSucessors=problem.getSuccessors(state); 
+      for sucFn in listSucessors:
+          nxtState, nxtAction, newCost=sucFn 
+          if nxtState not in visitedStates:
+              visitedStates.add(nxtState)
+              newListActions=[]
+              
+              for stuffs in listActions: 
+                newListActions.append(stuffs)
+              newListActions.append(nxtAction)
+              cost+=newCost
+              fringe.push((nxtState,newListActions,cost),cost)    
   "Search the node of least total cost first. "
   "*** YOUR CODE HERE ***"
   util.raiseNotDefined()
