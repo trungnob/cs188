@@ -64,6 +64,10 @@ def depthFirstSearch(problem):
   to determine the correctness of your algorithm.
   """
   "*** YOUR CODE HERE ***"
+  from game import Directions
+  visit=set()
+  fringe=
+  problem.getSuccessors()
   util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
