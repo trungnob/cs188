@@ -73,6 +73,7 @@ def depthFirstSearch(problem):
   cost=0;
   node=stateNode.stateNode(state)
   fringe.push(node)
+  visitedStates.add(state)
   while (1):
       if fringe.isEmpty(): return None
       node=fringe.pop()
@@ -82,6 +83,7 @@ def depthFirstSearch(problem):
           print(cost)
           return listActions
       listSucessors=problem.getSuccessors(state);
+      listSucessors.reverse();
       saveCost=cost 
       for sucFn in listSucessors:
           nxtState, nxtAction, newCost=sucFn
@@ -108,6 +110,7 @@ def breadthFirstSearch(problem):
   cost=0;
   node=stateNode.stateNode(state)
   fringe.push(node)
+  visitedStates.add(state)
   while (1):
       if fringe.isEmpty(): return None
       node=fringe.pop()
@@ -141,6 +144,7 @@ def uniformCostSearch(problem):
   cost=0;
   node=stateNode.stateNode(state)
   fringe.push(node,cost)
+  visitedStates.add(state)
   while (1):
       if fringe.isEmpty(): return None
       node=fringe.pop()
@@ -172,9 +176,43 @@ def nullHeuristic(state):
   return 0
 
 def aStarSearch(problem, heuristic=nullHeuristic):
-  "Search the node that has the lowest combined cost and heuristic first."
-  "*** YOUR CODE HERE ***"
-  util.raiseNotDefined()
+  from game import Directions
+  import stateNode
+  
+  visitedStates=set()
+  fringe=util.PriorityQueue()
+  listActions=[];
+  state=problem.getStartState()
+  cost=0;
+  node=stateNode.stateNode(state)
+  
+  priorityVal=heuristic(state)+cost
+  visitedStates.add(state)
+  fringe.push(node,priorityVal)
+  while (1):
+      if fringe.isEmpty(): return None
+      node=fringe.pop()
+      state,listActions,cost=node.state,node.listActions,node.cost
+      if problem.isGoalState(state):
+          print(listActions)
+          print(cost)
+          return listActions
+      listSucessors=problem.getSuccessors(state);
+      saveCost=cost 
+      for sucFn in listSucessors:
+          nxtState, nxtAction, newCost=sucFn
+          cost=saveCost 
+          if nxtState not in visitedStates:
+              visitedStates.add(nxtState)
+              newListActions=[]
+              for stuffs in listActions: 
+                newListActions.append(stuffs)
+              newListActions.append(nxtAction)
+              cost+=newCost
+              priorityVal=heuristic(nxtState)+cost
+              newNode=stateNode.stateNode(nxtState,newListActions,cost)
+              fringe.push(newNode,priorityVal)
+
     
 def greedySearch(problem, heuristic=nullHeuristic):
   "Search the node that has the lowest heuristic first."
