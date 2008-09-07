@@ -73,7 +73,6 @@ def depthFirstSearch(problem):
   cost=0;
   node=stateNode.stateNode(state)
   fringe.push(node)
-  visitedStates.add(state)
   while (1):
       if fringe.isEmpty(): return None
       node=fringe.pop()
@@ -82,21 +81,23 @@ def depthFirstSearch(problem):
           print(listActions)
           print(cost)
           return listActions
-      listSucessors=problem.getSuccessors(state);
-      listSucessors.reverse();
-      saveCost=cost 
-      for sucFn in listSucessors:
-          nxtState, nxtAction, newCost=sucFn
-          cost=saveCost 
-          if nxtState not in visitedStates:
-              visitedStates.add(nxtState)
-              newListActions=[]
-              for stuffs in listActions: 
-                newListActions.append(stuffs)
-              newListActions.append(nxtAction)
-              cost+=newCost
-              newNode=stateNode.stateNode(nxtState,newListActions,cost)
-              fringe.push(newNode)
+      if state not in visitedStates:
+              visitedStates.add(state)
+              listSucessors=problem.getSuccessors(state);
+              listSucessors.reverse()
+              saveCost=cost
+              for sucFn in listSucessors:
+                  nxtState, nxtAction, newCost=sucFn
+                  cost=saveCost 
+                  newListActions=[]
+                  for stuffs in listActions: 
+                      newListActions.append(stuffs)
+                  newListActions.append(nxtAction)
+                  cost+=newCost
+                  newNode=stateNode.stateNode(nxtState,newListActions,cost)
+                  fringe.push(newNode)
+      
+    
     
       
 
@@ -144,7 +145,6 @@ def uniformCostSearch(problem):
   cost=0;
   node=stateNode.stateNode(state)
   fringe.push(node,cost)
-  visitedStates.add(state)
   while (1):
       if fringe.isEmpty(): return None
       node=fringe.pop()
@@ -153,20 +153,24 @@ def uniformCostSearch(problem):
           print(listActions)
           print(cost)
           return listActions
-      listSucessors=problem.getSuccessors(state);
-      saveCost=cost 
-      for sucFn in listSucessors:
-          nxtState, nxtAction, newCost=sucFn
-          cost=saveCost 
-          if nxtState not in visitedStates:
-              visitedStates.add(nxtState)
-              newListActions=[]
-              for stuffs in listActions: 
-                newListActions.append(stuffs)
-              newListActions.append(nxtAction)
-              cost+=newCost
-              newNode=stateNode.stateNode(nxtState,newListActions,cost)
-              fringe.push(newNode,cost)
+      if state not in visitedStates:
+              visitedStates.add(state)
+              listSucessors=problem.getSuccessors(state);
+              saveCost=cost
+              for sucFn in listSucessors:
+                  nxtState, nxtAction, newCost=sucFn
+                  cost=saveCost 
+                  newListActions=[]
+                   
+                  for stuffs in listActions: 
+                       newListActions.append(stuffs)
+                  newListActions.append(nxtAction)
+                  cost+=newCost
+                  priorityVal=cost
+                  newNode=stateNode.stateNode(nxtState,newListActions,cost)
+                  fringe.push(newNode,priorityVal)
+                  
+      
 
 def nullHeuristic(state):
   """
@@ -185,9 +189,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
   state=problem.getStartState()
   cost=0;
   node=stateNode.stateNode(state)
-  
   priorityVal=heuristic(state)+cost
-  visitedStates.add(state)
   fringe.push(node,priorityVal)
   while (1):
       if fringe.isEmpty(): return None
@@ -197,21 +199,24 @@ def aStarSearch(problem, heuristic=nullHeuristic):
           print(listActions)
           print(cost)
           return listActions
-      listSucessors=problem.getSuccessors(state);
-      saveCost=cost 
-      for sucFn in listSucessors:
-          nxtState, nxtAction, newCost=sucFn
-          cost=saveCost 
-          if nxtState not in visitedStates:
-              visitedStates.add(nxtState)
-              newListActions=[]
-              for stuffs in listActions: 
-                newListActions.append(stuffs)
-              newListActions.append(nxtAction)
-              cost+=newCost
-              priorityVal=heuristic(nxtState)+cost
-              newNode=stateNode.stateNode(nxtState,newListActions,cost)
-              fringe.push(newNode,priorityVal)
+      if state not in visitedStates:
+              visitedStates.add(state)
+              listSucessors=problem.getSuccessors(state);
+              saveCost=cost
+              for sucFn in listSucessors:
+                  nxtState, nxtAction, newCost=sucFn
+                  cost=saveCost 
+                  newListActions=[]
+                  for stuffs in listActions: 
+                      newListActions.append(stuffs)
+                  newListActions.append(nxtAction)
+                  cost+=newCost
+                  priorityVal=heuristic(nxtState)+cost
+                  newNode=stateNode.stateNode(nxtState,newListActions,cost)
+                  fringe.push(newNode,priorityVal)
+      
+      
+      
 
     
 def greedySearch(problem, heuristic=nullHeuristic):
