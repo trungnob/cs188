@@ -387,16 +387,54 @@ def foodHeuristic(state):
   this works, come to office hours.
   """
   "*** YOUR CODE HERE ***"
-  util.raiseNotDefined()
+  return myFunc(state)
+def myFunc(state):
+    PMpos=state[0]
+    foodGrid=state[1]
+    if foodGrid.count()<3:
+        return findFoods(PMpos,3,foodGrid)
+    else:
+        return findFoods(PMpos,3,foodGrid)
 
+def findFoods(pos,rad,grid):
+    count=0
+    posx,posy=pos
+    limitOnX=grid.width
+    limitOnY=grid.height
+    if posx-rad <=0:
+        startXAt=0
+    else: 
+        startXAt=posx-rad
+    if posy-rad <=0:
+        startYAt=0
+    else: 
+        startYAt=posy-rad    
+    if posx+rad>=limitOnX:
+        endX=limitOnX
+    else:
+        endX=posx+rad
+    if posy+rad>=limitOnY:
+        endX=limitOnY
+    else:
+        endX=posy+rad
+    for i in range(startYAt,limitOnY-1):
+        for j in range(startXAt,limitOnX-1):
+          if grid[j][i]:
+              count+=1       
+    return (grid.count()-count)    
+         
+    
 class AStarFoodSearchAgent(SearchAgent):
   """
   An agent that computes a path to eat all the dots using AStar.
   
   You should use either foodHeuristic or getFoodHeuristic in your code here.
   """
-
-  "*** YOUR CODE HERE ***"
+  def __init__(self,searchFunction= None  ,searchType=FoodSearchProblem):
+    self.searchFunction=lambda x: search.aStarSearch(x, foodHeuristic)
+    self.searchType=searchType
+    SearchAgent.__init__(self, self.searchFunction,self.searchType)  
+   
 
 class GreedyFoodSearchAgent(SearchAgent):
   """
@@ -411,8 +449,8 @@ class TrivialAStarFoodSearchAgent(AStarFoodSearchAgent):
   """
   An AStarFoodSearchAgent that uses the trivial heuristic instead of the one defined by getFoodHeuristic
   """
-  def __init__(self, searchFunction=None, searchType=PositionSearchProblem):
+  def __init__(self, searchFunction=None, searchType=FoodSearchProblem):
     # Redefine getFoodHeuristic to return the trivial one.
     __import__(__name__).getFoodHeuristic = lambda gameState: trivialFoodHeuristic
-    __import__(__name__).FoodHeuristic    = trivialFoodHeuristic
+    __import__(__name__).foodHeuristic    = trivialFoodHeuristic
     AStarFoodSearchAgent.__init__(self, searchFunction, searchType)
