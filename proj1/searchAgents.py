@@ -164,11 +164,14 @@ class SearchAgent(Agent):
     # If you wrap your solution in the timing code provided, you'll know how long the pathfinding takes.
     starttime = time.time()
     "*** YOUR CODE HERE ***"
+    print('This is state 0')
+    print(state)
+    print('---Start Finding Solutions-------')
     problem =self.searchType(state)
-    self.path=self.searchFunction(problem);
+    self.actions=self.searchFunction(problem);
     
      
-    print 'Path found with total cost of %d in %.1f seconds' % (problem.getCostOfActions(self.path), time.time() - starttime)
+    print 'Path found with total cost of %d in %.1f seconds' % (problem.getCostOfActions(self.actions), time.time() - starttime)
     
     
   def getAction(self, state):
@@ -179,12 +182,12 @@ class SearchAgent(Agent):
     state: a GameState object (pacman.py)
     """
     "*** YOUR CODE HERE ***"
-    if 'pathIter' not in dir(self): 
-        self.pathIter=0;
+    if 'actionsIter' not in dir(self): 
+        self.actionsIter=0;
     
-    if self.pathIter< len(self.path):
-        nextAct=self.path[self.pathIter]
-        self.pathIter+=1 
+    if self.actionsIter< len(self.actions):
+        nextAct=self.actions[self.actionsIter]
+        self.actionsIter+=1 
     else: 
         nextAct=Directions.STOP
     return nextAct;
@@ -366,6 +369,7 @@ def getFoodHeuristic(gameState):
   True or False.
   """
   # If you don't want to implement this method, you can leave this default implementation
+  print(gameState)
   return foodHeuristic
 
 def foodHeuristic(state):
@@ -387,7 +391,8 @@ def foodHeuristic(state):
   this works, come to office hours.
   """
   "*** YOUR CODE HERE ***"
-  return myFunc(state)
+ 
+  return myFunc2(state)
 def myFunc(state):
     PMpos=state[0]
     foodGrid=state[1]
@@ -395,10 +400,76 @@ def myFunc(state):
         return findFoods(PMpos,3,foodGrid)
     else:
         return findFoods(PMpos,3,foodGrid)
+def myFunc2(state):
+    PMpos=state[0]
+    foodGrid=state[1]
+    if foodGrid.count()==0: return 0;
+    return sumDistance2(foodGrid,PMpos)
+def myFunc3(state):
+    PMpos=state[0]
+    foodGrid=state[1]
+    return getClosestFood(PMpos,foodGrid)
+def sumDistance(grid,pos):
+    sum=0
+    L=grid.height
+    W=grid.width
+    for i in range(0,W):
+        for j in range(0,L):
+            if grid[i][j] : 
+                sum+=manhattanDistance((i,j),pos)
+    return sum/(grid.count())
+def sumDistance2(grid,pos):
+    sumi=0
+    sumj=0
+    L=grid.height
+    W=grid.width
+    for i in range(0,W):
+        for j in range(0,L):
+            if grid[i][j] : 
+                sumi+=i
+                sumj+=j
+    ai=sumi/grid.count()
+    aj=sumj/grid.count()
+    return manhattanDistance(pos,(ai,aj))
 
+def getClosestFood(pos,foodGrid):
+    for i in range(1,max(foodGrid.height,foodGrid.width)):
+        foodFind=findFoodInRad(pos,i,foodGrid)
+    if foodFind==None: 
+        return 0
+    else:
+        return manhattanDistance(pos,foodFind)
+def findFoodInRad(pos,rad,grid):
+    count=0
+    posx,posy=pos
+    listFoods=[]
+    limitOnX=grid.width
+    limitOnY=grid.height
+    if posx-rad <=0:
+        startXAt=0
+    else: 
+        startXAt=posx-rad
+    if posy-rad <=0:
+        startYAt=0
+    else: 
+        startYAt=posy-rad    
+    if posx+rad>=limitOnX:
+        endX=limitOnX
+    else:
+        endX=posx+rad
+    if posy+rad>=limitOnY:
+        endX=limitOnY
+    else:
+        endX=posy+rad
+    for i in range(startXAt,limitOnX-1):
+        for j in range(startYAt,limitOnY-1):
+          if grid[i][j]:
+              return (i,j)     
+    return None
 def findFoods(pos,rad,grid):
     count=0
     posx,posy=pos
+    listFoods=[]
     limitOnX=grid.width
     limitOnY=grid.height
     if posx-rad <=0:
@@ -420,8 +491,9 @@ def findFoods(pos,rad,grid):
     for i in range(startYAt,limitOnY-1):
         for j in range(startXAt,limitOnX-1):
           if grid[j][i]:
-              count+=1       
-    return (grid.count()-count)    
+              count+=1 
+              listFoods.append((j,i))      
+    return ((grid.count()-count),listFoods)    
          
     
 class AStarFoodSearchAgent(SearchAgent):
@@ -431,9 +503,37 @@ class AStarFoodSearchAgent(SearchAgent):
   You should use either foodHeuristic or getFoodHeuristic in your code here.
   """
   def __init__(self,searchFunction= None  ,searchType=FoodSearchProblem):
-    self.searchFunction=lambda x: search.aStarSearch(x, foodHeuristic)
-    self.searchType=searchType
+    self.searchType=searchType  
+   
+    self.searchFunction=lambda x: search.aStarSearch(x, getFoodHeuristic(None))
     SearchAgent.__init__(self, self.searchFunction,self.searchType)  
+  def registerInitialState(self, state):
+    """
+    This is the first time that the agent sees the layout of the game board. Here, we
+    choose a path to the goal.  In this phase, the agent should compute the path to the
+    goal and store it in a local variable.
+    
+    state: a GameState object (pacman.py)
+    """
+    if self.searchFunction == None:
+      import sys
+      print "No search function provided for SearchAgent"
+      sys.exit(1)
+
+    # If you wrap your solution in the timing code provided, you'll know how long the pathfinding takes.
+    starttime = time.time()
+    "*** YOUR CODE HERE ***"
+    print('This is state 0')
+    print(state)
+    print(state.getPacmanPosition())
+    print(state.getFood())
+    print('---Start Finding Solutions-------')
+    problem =self.searchType(state)
+    self.searchFunction=lambda x: search.aStarSearch(x, getFoodHeuristic(state))
+    self.actions=self.searchFunction(problem);
+    
+     
+    print 'Path found with total cost of %d in %.1f seconds' % (problem.getCostOfActions(self.actions), time.time() - starttime)
    
 
 class GreedyFoodSearchAgent(SearchAgent):
