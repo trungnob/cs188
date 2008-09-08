@@ -139,7 +139,7 @@ def uniformCostSearch(problem):
   from game import Directions
   import stateNode
   visitedStates=set()
-  fringe=util.PriorityQueue()
+  fringe=util.FasterPriorityQueue()
   listActions=[];
   state=problem.getStartState()
   cost=0;
@@ -161,14 +161,12 @@ def uniformCostSearch(problem):
                   nxtState, nxtAction, newCost=sucFn
                   cost=saveCost 
                   newListActions=[]
-                   
                   for stuffs in listActions: 
                        newListActions.append(stuffs)
                   newListActions.append(nxtAction)
                   cost+=newCost
-                  priorityVal=cost
                   newNode=stateNode.stateNode(nxtState,newListActions,cost)
-                  fringe.push(newNode,priorityVal)
+                  fringe.push(newNode,cost)
                   
       
 
@@ -182,9 +180,8 @@ def nullHeuristic(state):
 def aStarSearch(problem, heuristic=nullHeuristic):
   from game import Directions
   import stateNode
-  
   visitedStates=set()
-  fringe=util.PriorityQueue()
+  fringe=util.FasterPriorityQueue()
   listActions=[];
   state=problem.getStartState()
   cost=0;
