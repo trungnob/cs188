@@ -139,7 +139,7 @@ def uniformCostSearch(problem):
   from game import Directions
   import stateNode
   visitedStates=set()
-  fringe=util.FasterPriorityQueue()
+  fringe=util.PriorityQueue()
   listActions=[];
   state=problem.getStartState()
   cost=0;
@@ -181,17 +181,20 @@ def aStarSearch(problem, heuristic=nullHeuristic):
   from game import Directions
   import stateNode
   visitedStates=set()
-  fringe=util.FasterPriorityQueue()
+  fringe=util.PriorityQueue()
   listActions=[];
   state=problem.getStartState()
   cost=0;
-  node=stateNode.stateNode(state)
-  priorityVal=heuristic(state)+cost
+  
+  Hvalue=heuristic(state)
+  priorityVal=Hvalue+cost
+  node=stateNode.stateNode(state,listActions,cost,Hvalue)
   fringe.push(node,priorityVal)
   while (1):
       if fringe.isEmpty(): return None
       node=fringe.pop()
-      state,listActions,cost=node.state,node.listActions,node.cost
+      
+      state,listActions,cost,Hvalue=node.state,node.listActions,node.cost,node.Hvalue
       if problem.isGoalState(state):
           print(listActions)
           print(cost)
@@ -200,6 +203,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
               visitedStates.add(state)
               listSucessors=problem.getSuccessors(state);
               saveCost=cost
+            
               for sucFn in listSucessors:
                   nxtState, nxtAction, newCost=sucFn
                   cost=saveCost 
@@ -208,8 +212,10 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                       newListActions.append(stuffs)
                   newListActions.append(nxtAction)
                   cost+=newCost
-                  priorityVal=heuristic(nxtState)+cost
-                  newNode=stateNode.stateNode(nxtState,newListActions,cost)
+                  newHvalue=heuristic(nxtState)
+                  #if (Hvalue-newHvalue)> 1 : print(Hvalue,newHvalue) 
+                  priorityVal=newHvalue+cost
+                  newNode=stateNode.stateNode(nxtState,newListActions,cost,newHvalue)
                   fringe.push(newNode,priorityVal)
       
       

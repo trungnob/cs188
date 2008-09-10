@@ -23,7 +23,7 @@ from util import manhattanDistance
 import util
 import time
 import search
-
+Walls=[]
 class GoWestAgent(Agent):
   """
   An agent that goes West until it can't.
@@ -370,8 +370,12 @@ def getFoodHeuristic(gameState):
   """
   # If you don't want to implement this method, you can leave this default implementation
   print(gameState)
+  Walls=gameState.getWalls()
+  print(Walls)
   return foodHeuristic
-
+def someFunction(gamestate,state):
+    print(gameState)
+    return  
 def foodHeuristic(state):
   """
   Here, you can write your food heuristic function instead of using getFoodHeuristic.
@@ -391,8 +395,8 @@ def foodHeuristic(state):
   this works, come to office hours.
   """
   "*** YOUR CODE HERE ***"
- 
-  return myFunc2(state)
+  buildGraph(state[1])
+  return myFunc4(state)
 def myFunc(state):
     PMpos=state[0]
     foodGrid=state[1]
@@ -400,15 +404,40 @@ def myFunc(state):
         return findFoods(PMpos,3,foodGrid)
     else:
         return findFoods(PMpos,3,foodGrid)
+def buildGraph(foodGrid):
+    V=set()
+    E=set() 
+    listFood=foodGrid.asList()
+    while len(listFood)!=0:
+        verTex=listFood.pop()
+        V.add(verTex)
+        for restVertex in listFood:
+            W=manhattanDistance(verTex,restVertex)
+            pair =(verTex,restVertex)
+            E.add((pair,W))
+    return (E,V)
+  
+def mst(G):
+    E=G[0]
+    V=G[1]
+    n=len(E)
+    mst_Tree=set()
+    minE=
+    while (len(mst_Tree)<n-1) &  (len(E)!=0)
+               
 def myFunc2(state):
     PMpos=state[0]
     foodGrid=state[1]
     if foodGrid.count()==0: return 0;
-    return sumDistance2(foodGrid,PMpos)
+    return sumDistance(foodGrid,PMpos)/foodGrid.count()
 def myFunc3(state):
     PMpos=state[0]
     foodGrid=state[1]
     return getClosestFood(PMpos,foodGrid)
+def myFunc4(state):
+    PMpos=state[0]
+    foodGrid=state[1]
+    return lookAhead(foodGrid,PMpos,3)+foodGrid.count()-1
 def sumDistance(grid,pos):
     sum=0
     L=grid.height
@@ -417,7 +446,71 @@ def sumDistance(grid,pos):
         for j in range(0,L):
             if grid[i][j] : 
                 sum+=manhattanDistance((i,j),pos)
-    return sum/(grid.count())
+    return sum
+def lookAheadWest(grid,pos,numStep):
+    X=pos[0]
+    Y=pos[1]
+    count=0
+    if (X-numStep<0): XLowLimit=0
+    else: XLowLimit=X-numStep
+    if (X+numStep>grid.width): XHighLimit=grid.width
+    else : XHighLimit=X+numStep
+    for i in range(X-1,XLowLimit,-1):
+        count+=1
+        if grid[i][Y]:
+            return count         
+    return None
+def lookAheadEast(grid,pos,numStep):
+    X=pos[0]
+    Y=pos[1]
+    count=0
+    if (X-numStep<0): XLowLimit=0
+    else: XLowLimit=X-numStep
+    if (X+numStep>grid.width): XHighLimit=grid.width
+    else : XHighLimit=X+numStep
+    for i in range(X+1,XHighLimit,+1):
+        count+=1
+        if grid[i][Y]:
+            return count         
+    return None
+def lookAheadNorth(grid,pos,numStep):
+    X=pos[0]
+    Y=pos[1]
+    count=0
+    if (Y-numStep<0): YLowLimit=0
+    else: YLowLimit=Y-numStep
+    if (Y+numStep>grid.height): YHighLimit=grid.height
+    else : YHighLimit=Y+numStep
+    for i in range(Y+1,YHighLimit,+1):
+        count+=1
+        if grid[X][i]:
+            return count         
+    return None
+
+def lookAheadSouth(grid,pos,numStep):
+    X=pos[0]
+    Y=pos[1]
+    count=0
+    if (Y-numStep<0): YLowLimit=0
+    else: YLowLimit=Y-numStep
+    if (Y+numStep>grid.height): YHighLimit=grid.height
+    else : YHighLimit=Y+numStep
+    for i in range(Y-1,YLowLimit,-1):
+        count+=1
+        if grid[X][i]:
+            return count         
+    return None
+def lookAhead(grid,pos,numStep):
+    lan= lookAheadNorth(grid, pos, numStep)
+    if lan!=None: return lan
+    law=lookAheadWest(grid,pos,numStep)
+    if law!=None:return law
+    las=lookAheadSouth(grid,pos,numStep)
+    if las!=None:return las
+    lae=lookAheadEast(grid,pos,numStep)
+    if lae!=None:return lae
+    return grid.count();
+    
 def sumDistance2(grid,pos):
     sumi=0
     sumj=0
@@ -435,10 +528,12 @@ def sumDistance2(grid,pos):
 def getClosestFood(pos,foodGrid):
     for i in range(1,max(foodGrid.height,foodGrid.width)):
         foodFind=findFoodInRad(pos,i,foodGrid)
-    if foodFind==None: 
-        return 0
-    else:
-        return manhattanDistance(pos,foodFind)
+        if foodFind==None: continue
+        else:
+            return   manhattanDistance(pos,foodFind)
+            
+    return 0
+
 def findFoodInRad(pos,rad,grid):
     count=0
     posx,posy=pos
@@ -507,6 +602,7 @@ class AStarFoodSearchAgent(SearchAgent):
    
     self.searchFunction=lambda x: search.aStarSearch(x, getFoodHeuristic(None))
     SearchAgent.__init__(self, self.searchFunction,self.searchType)  
+    
   def registerInitialState(self, state):
     """
     This is the first time that the agent sees the layout of the game board. Here, we
@@ -529,6 +625,7 @@ class AStarFoodSearchAgent(SearchAgent):
     print(state.getFood())
     print('---Start Finding Solutions-------')
     problem =self.searchType(state)
+    
     self.searchFunction=lambda x: search.aStarSearch(x, getFoodHeuristic(state))
     self.actions=self.searchFunction(problem);
     
