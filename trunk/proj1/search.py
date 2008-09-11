@@ -181,7 +181,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
   from game import Directions
   import stateNode
   visitedStates=set()
-  fringe=util.PriorityQueue()
+  fringe=util.FasterPriorityQueue()
   listActions=[];
   state=problem.getStartState()
   cost=0;
@@ -212,8 +212,14 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                       newListActions.append(stuffs)
                   newListActions.append(nxtAction)
                   cost+=newCost
-                  newHvalue=heuristic(nxtState)
-                  #if (Hvalue-newHvalue)> 1 : print(Hvalue,newHvalue) 
+                  newHvalue=heuristic(nxtState) 
+#                  if (Hvalue-newHvalue)>1 :
+#                      print('Here:')
+#                      print(Hvalue,newHvalue)
+#                      print(state[0])
+#                      print(state[1])
+#                      print(nxtState[0])
+#                      print(nxtState[1])  
                   priorityVal=newHvalue+cost
                   newNode=stateNode.stateNode(nxtState,newListActions,cost,newHvalue)
                   fringe.push(newNode,priorityVal)
