@@ -24,6 +24,10 @@ import util
 import time
 import search
 Walls=[]
+listTransverse=[]
+listMahantan=[]
+totalPath=0
+startHeuristic=0
 class GoWestAgent(Agent):
   """
   An agent that goes West until it can't.
@@ -369,9 +373,13 @@ def getFoodHeuristic(gameState):
   True or False.
   """
   # If you don't want to implement this method, you can leave this default implementation
-  print(gameState)
-  Walls=gameState.getWalls()
-  print(Walls)
+  #global  listTransverse,listMahantan,totalPath,startHeuristic
+  #print(gameState)
+  #Walls=gameState.getWalls()
+  #print(Walls)
+  #state=(gameState.getPacmanPosition(),gameState.getFood())
+  #listTransverse,listMahantan,totalPath=buildListFood(state)
+  #startHeuristic=totalPath
   return foodHeuristic
 def someFunction(gamestate,state):
     print(gameState)
@@ -395,8 +403,9 @@ def foodHeuristic(state):
   this works, come to office hours.
   """
   "*** YOUR CODE HERE ***"
-  buildGraph(state[1])
-  return myFunc4(state)
+  
+  
+  return myFunc6(state)
 def myFunc(state):
     PMpos=state[0]
     foodGrid=state[1]
@@ -416,14 +425,56 @@ def buildGraph(foodGrid):
             pair =(verTex,restVertex)
             E.add((pair,W))
     return (E,V)
-  
+def buildListFood(state):
+    PMpos=state[0]
+    foodGrid=state[1]
+    listFood=foodGrid.asList()
+    returnList=[]
+    listDistance=[]
+    startAt=PMpos
+    totalpath=0
+    #if len(listFood)<=5: return (listFood,[],len(listFood))
+    while len(listFood)>0 :
+        closestFood=listFood[0]
+        min=manhattanDistance(startAt,listFood[0])
+        for food in listFood:
+            if  (manhattanDistance(startAt,food)<=min):
+                min=manhattanDistance(startAt,food)
+                closestFood=food
+        returnList.append(closestFood)
+        listFood.remove(closestFood)
+        startAt=closestFood
+        totalpath+=min
+        listDistance.append(min)
+    return (returnList,listDistance,totalpath)
+def myFunc6(state):
+    listTransverse,listMahantan,totalPath=buildListFood(state)
+    if state[1].count() ==0 : return 0
+    return totalPath
+def myFunc5(state):
+    global listTransverse
+    global totalPath
+    global listManhantan
+    global startHeuristic
+    savetotalPath=totalPath
+    PMpos=state[0]
+    foodGrid=state[1]
+    if len(listTransverse)==0: return 0
+    else:
+        totalPath-=listMahantan[0]
+        totalPath+=manhattanDistance(PMpos,listTransverse[0])
+    food=listTransverse[0]
+    x=food[0]
+    y=food[1]
+    if (foodGrid[x][y]==False): listTransverse.remove(listTransverse[0])
+    return totalPath
+    
 def mst(G):
     E=G[0]
     V=G[1]
     n=len(E)
     mst_Tree=set()
-    minE=
-    while (len(mst_Tree)<n-1) &  (len(E)!=0)
+    
                
 def myFunc2(state):
     PMpos=state[0]
