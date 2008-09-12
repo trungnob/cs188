@@ -670,11 +670,7 @@ class AStarFoodSearchAgent(SearchAgent):
     # If you wrap your solution in the timing code provided, you'll know how long the pathfinding takes.
     starttime = time.time()
     "*** YOUR CODE HERE ***"
-    print('This is state 0')
-    print(state)
-    print(state.getPacmanPosition())
-    print(state.getFood())
-    print('---Start Finding Solutions-------')
+   
     problem =self.searchType(state)
     
     self.searchFunction=lambda x: search.aStarSearch(x, getFoodHeuristic(state))
@@ -706,11 +702,7 @@ class GreedyFoodSearchAgent(SearchAgent):
     # If you wrap your solution in the timing code provided, you'll know how long the pathfinding takes.
     starttime = time.time()
     "*** YOUR CODE HERE ***"
-    print('This is state 0')
-    print(state)
-    print(state.getPacmanPosition())
-    print(state.getFood())
-    print('---Start Finding Solutions-------')
+    
     problem =self.searchType(state)
     
     self.searchFunction=lambda x: search.greedySearch(x, getFoodHeuristic(state))
