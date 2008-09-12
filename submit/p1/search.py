@@ -65,13 +65,12 @@ def depthFirstSearch(problem):
   """
   "*** YOUR CODE HERE ***"
   from game import Directions
-  import stateNode
   visitedStates=set()
   fringe=util.Stack()
   listActions=[];
   state=problem.getStartState()
   cost=0;
-  node=stateNode.stateNode(state)
+  node=stateNode(state)
   fringe.push(node)
   while (1):
       if fringe.isEmpty(): return None
@@ -94,7 +93,7 @@ def depthFirstSearch(problem):
                       newListActions.append(stuffs)
                   newListActions.append(nxtAction)
                   cost+=newCost
-                  newNode=stateNode.stateNode(nxtState,newListActions,cost)
+                  newNode=stateNode(nxtState,newListActions,cost)
                   fringe.push(newNode)
       
     
@@ -103,13 +102,12 @@ def depthFirstSearch(problem):
 
 def breadthFirstSearch(problem):
   from game import Directions
-  import stateNode
   visitedStates=set()
   fringe=util.Queue()
   listActions=[];
   state=problem.getStartState()
   cost=0;
-  node=stateNode.stateNode(state)
+  node=stateNode(state)
   fringe.push(node)
   visitedStates.add(state)
   while (1):
@@ -132,18 +130,18 @@ def breadthFirstSearch(problem):
                 newListActions.append(stuffs)
               newListActions.append(nxtAction)
               cost+=newCost
-              newNode=stateNode.stateNode(nxtState,newListActions,cost)
+              newNode=stateNode(nxtState,newListActions,cost)
               fringe.push(newNode)
               
 def uniformCostSearch(problem):
   from game import Directions
-  import stateNode
+
   visitedStates=set()
   fringe=util.PriorityQueue()
   listActions=[];
   state=problem.getStartState()
   cost=0;
-  node=stateNode.stateNode(state)
+  node=stateNode(state)
   fringe.push(node,cost)
   while (1):
       if fringe.isEmpty(): return None
@@ -165,7 +163,7 @@ def uniformCostSearch(problem):
                        newListActions.append(stuffs)
                   newListActions.append(nxtAction)
                   cost+=newCost
-                  newNode=stateNode.stateNode(nxtState,newListActions,cost)
+                  newNode=stateNode(nxtState,newListActions,cost)
                   fringe.push(newNode,cost)
                   
       
@@ -179,7 +177,7 @@ def nullHeuristic(state):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
   from game import Directions
-  import stateNode
+  
   visitedStates=set()
   fringe=util.FasterPriorityQueue()
   listActions=[];
@@ -188,7 +186,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
   
   Hvalue=heuristic(state)
   priorityVal=Hvalue+cost
-  node=stateNode.stateNode(state,listActions,cost,Hvalue)
+  node=stateNode(state,listActions,cost,Hvalue)
   fringe.push(node,priorityVal)
   while (1):
       if fringe.isEmpty(): return None
@@ -221,16 +219,24 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 #                      print(nxtState[0])
 #                      print(nxtState[1])  
                   priorityVal=newHvalue+cost
-                  newNode=stateNode.stateNode(nxtState,newListActions,cost,newHvalue)
+                  newNode=stateNode(nxtState,newListActions,cost,newHvalue)
                   fringe.push(newNode,priorityVal)
       
       
       
-
+class stateNode(object):
+    def __init__(self,state=None,listActions=[],cost=0,Hvalue=9999):
+        self.state=state
+        self.listActions=listActions
+        self.cost=cost
+        self.Hvalue=Hvalue
+    def __eq__(self, other):
+        if other == None: return False
+        return (self.state == other.state)&(self.listActions==other.listActions)
     
 def greedySearch(problem, heuristic=nullHeuristic):
   from game import Directions
-  import stateNode
+  
   visitedStates=set()
   fringe=util.FasterPriorityQueue()
   listActions=[];
@@ -239,7 +245,7 @@ def greedySearch(problem, heuristic=nullHeuristic):
   
   Hvalue=heuristic(state)
   priorityVal=Hvalue
-  node=stateNode.stateNode(state,listActions,cost,Hvalue)
+  node=stateNode(state,listActions,cost,Hvalue)
   fringe.push(node,priorityVal)
   while (1):
       if fringe.isEmpty(): return None
@@ -272,7 +278,7 @@ def greedySearch(problem, heuristic=nullHeuristic):
 #                      print(nxtState[0])
 #                      print(nxtState[1])  
                   priorityVal=newHvalue
-                  newNode=stateNode.stateNode(nxtState,newListActions,cost,newHvalue)
+                  newNode=stateNode(nxtState,newListActions,cost,newHvalue)
                   fringe.push(newNode,priorityVal)
 
 
