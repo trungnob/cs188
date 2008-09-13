@@ -373,13 +373,16 @@ def getFoodHeuristic(gameState):
   True or False.
   """
   # If you don't want to implement this method, you can leave this default implementation
-  #global  listTransverse,listMahantan,totalPath,startHeuristic
+  global  listTransverse,listMahantan,totalPath,startHeuristic
   #print(gameState)
   #Walls=gameState.getWalls()
   #print(Walls)
   #state=(gameState.getPacmanPosition(),gameState.getFood())
   #listTransverse,listMahantan,totalPath=buildListFood(state)
   #startHeuristic=totalPath
+  #G=E,V=buildGraph(state[1],state[0])
+  #totalpath,mst_Tree=mst(G)
+  #len(mst_Tree)
   return foodHeuristic
 def someFunction(gamestate,state):
     print(gameState)
@@ -405,25 +408,20 @@ def foodHeuristic(state):
   "*** YOUR CODE HERE ***"
   
   
-  return myFunc6(state)
-def myFunc(state):
-    PMpos=state[0]
-    foodGrid=state[1]
-    if foodGrid.count()<3:
-        return findFoods(PMpos,3,foodGrid)
-    else:
-        return findFoods(PMpos,3,foodGrid)
-def buildGraph(foodGrid):
+  return myFunc7(state)
+
+def buildGraph(foodGrid,PMpos):
     V=set()
-    E=set() 
+    E=util.FasterPriorityQueue() 
     listFood=foodGrid.asList()
+    listFood.append(PMpos)
     while len(listFood)!=0:
         verTex=listFood.pop()
         V.add(verTex)
         for restVertex in listFood:
             W=manhattanDistance(verTex,restVertex)
             pair =(verTex,restVertex)
-            E.add((pair,W))
+            E.push(pair,W)
     return (E,V)
 def buildListFood(state):
     PMpos=state[0]
@@ -447,199 +445,53 @@ def buildListFood(state):
         totalpath+=min
         listDistance.append(min)
     return (returnList,listDistance,totalpath)
+def myFunc1(state):
+   return  state[1].count()
 def myFunc6(state):
     listTransverse,listMahantan,totalPath=buildListFood(state)
     if state[1].count() ==0 : return 0
     return totalPath
-def myFunc5(state):
-    global listTransverse
-    global totalPath
-    global listManhantan
-    global startHeuristic
-    savetotalPath=totalPath
+def myFunc7(state):
     PMpos=state[0]
     foodGrid=state[1]
-    if len(listTransverse)==0: return 0
-    else:
-        totalPath-=listMahantan[0]
-        totalPath+=manhattanDistance(PMpos,listTransverse[0])
-    food=listTransverse[0]
-    x=food[0]
-    y=food[1]
-    if (foodGrid[x][y]==False): listTransverse.remove(listTransverse[0])
-    return totalPath
-    
+    G=buildGraph(foodGrid, PMpos)
+    totalpath,mst_tree=mst(G)
+    return totalpath
 def mst(G):
     E=G[0]
     V=G[1]
-    n=len(E)
-    mst_Tree=set()
-    
-               
-def myFunc2(state):
-    PMpos=state[0]
-    foodGrid=state[1]
-    if foodGrid.count()==0: return 0;
-    return sumDistance(foodGrid,PMpos)/foodGrid.count()
-def myFunc3(state):
-    PMpos=state[0]
-    foodGrid=state[1]
-    return getClosestFood(PMpos,foodGrid)
-def myFunc4(state):
-    PMpos=state[0]
-    foodGrid=state[1]
-    return lookAhead(foodGrid,PMpos,3)+foodGrid.count()-1
-def sumDistance(grid,pos):
-    sum=0
-    L=grid.height
-    W=grid.width
-    for i in range(0,W):
-        for j in range(0,L):
-            if grid[i][j] : 
-                sum+=manhattanDistance((i,j),pos)
-    return sum
-def lookAheadWest(grid,pos,numStep):
-    X=pos[0]
-    Y=pos[1]
-    count=0
-    if (X-numStep<0): XLowLimit=0
-    else: XLowLimit=X-numStep
-    if (X+numStep>grid.width): XHighLimit=grid.width
-    else : XHighLimit=X+numStep
-    for i in range(X-1,XLowLimit,-1):
+    mst_Tree=[]
+    listofSet=list()
+    totalpath=0;
+    for verTex in V:
+        newSet=set()
+        newSet.add(verTex)
+        listofSet.append(newSet)
+    count =0
+    while not(E.isEmpty()):
+        e=E.pop()
         count+=1
-        if grid[i][Y]:
-            return count         
-    return None
-def lookAheadEast(grid,pos,numStep):
-    X=pos[0]
-    Y=pos[1]
-    count=0
-    if (X-numStep<0): XLowLimit=0
-    else: XLowLimit=X-numStep
-    if (X+numStep>grid.width): XHighLimit=grid.width
-    else : XHighLimit=X+numStep
-    for i in range(X+1,XHighLimit,+1):
-        count+=1
-        if grid[i][Y]:
-            return count         
-    return None
-def lookAheadNorth(grid,pos,numStep):
-    X=pos[0]
-    Y=pos[1]
-    count=0
-    if (Y-numStep<0): YLowLimit=0
-    else: YLowLimit=Y-numStep
-    if (Y+numStep>grid.height): YHighLimit=grid.height
-    else : YHighLimit=Y+numStep
-    for i in range(Y+1,YHighLimit,+1):
-        count+=1
-        if grid[X][i]:
-            return count         
-    return None
-
-def lookAheadSouth(grid,pos,numStep):
-    X=pos[0]
-    Y=pos[1]
-    count=0
-    if (Y-numStep<0): YLowLimit=0
-    else: YLowLimit=Y-numStep
-    if (Y+numStep>grid.height): YHighLimit=grid.height
-    else : YHighLimit=Y+numStep
-    for i in range(Y-1,YLowLimit,-1):
-        count+=1
-        if grid[X][i]:
-            return count         
-    return None
-def lookAhead(grid,pos,numStep):
-    lan= lookAheadNorth(grid, pos, numStep)
-    if lan!=None: return lan
-    law=lookAheadWest(grid,pos,numStep)
-    if law!=None:return law
-    las=lookAheadSouth(grid,pos,numStep)
-    if las!=None:return las
-    lae=lookAheadEast(grid,pos,numStep)
-    if lae!=None:return lae
-    return grid.count();
-    
-def sumDistance2(grid,pos):
-    sumi=0
-    sumj=0
-    L=grid.height
-    W=grid.width
-    for i in range(0,W):
-        for j in range(0,L):
-            if grid[i][j] : 
-                sumi+=i
-                sumj+=j
-    ai=sumi/grid.count()
-    aj=sumj/grid.count()
-    return manhattanDistance(pos,(ai,aj))
-
-def getClosestFood(pos,foodGrid):
-    for i in range(1,max(foodGrid.height,foodGrid.width)):
-        foodFind=findFoodInRad(pos,i,foodGrid)
-        if foodFind==None: continue
+        p1=e[0]
+        p2=e[1]
+        
+        for aSet in listofSet:         
+             if (p1  in aSet):
+                 p1Set=aSet 
+             if (p2 in aSet):
+                 p2Set=aSet
+        if (p1Set==p2Set):
+            continue
         else:
-            return   manhattanDistance(pos,foodFind)
-            
-    return 0
-
-def findFoodInRad(pos,rad,grid):
-    count=0
-    posx,posy=pos
-    listFoods=[]
-    limitOnX=grid.width
-    limitOnY=grid.height
-    if posx-rad <=0:
-        startXAt=0
-    else: 
-        startXAt=posx-rad
-    if posy-rad <=0:
-        startYAt=0
-    else: 
-        startYAt=posy-rad    
-    if posx+rad>=limitOnX:
-        endX=limitOnX
-    else:
-        endX=posx+rad
-    if posy+rad>=limitOnY:
-        endX=limitOnY
-    else:
-        endX=posy+rad
-    for i in range(startXAt,limitOnX-1):
-        for j in range(startYAt,limitOnY-1):
-          if grid[i][j]:
-              return (i,j)     
-    return None
-def findFoods(pos,rad,grid):
-    count=0
-    posx,posy=pos
-    listFoods=[]
-    limitOnX=grid.width
-    limitOnY=grid.height
-    if posx-rad <=0:
-        startXAt=0
-    else: 
-        startXAt=posx-rad
-    if posy-rad <=0:
-        startYAt=0
-    else: 
-        startYAt=posy-rad    
-    if posx+rad>=limitOnX:
-        endX=limitOnX
-    else:
-        endX=posx+rad
-    if posy+rad>=limitOnY:
-        endX=limitOnY
-    else:
-        endX=posy+rad
-    for i in range(startYAt,limitOnY-1):
-        for j in range(startXAt,limitOnX-1):
-          if grid[j][i]:
-              count+=1 
-              listFoods.append((j,i))      
-    return ((grid.count()-count),listFoods)    
+            w=util.manhattanDistance(p1,p2)
+            newSet=set(p1Set.union(p2Set))
+            listofSet.remove(p1Set)
+            listofSet.remove(p2Set)
+            listofSet.append(newSet)
+            totalpath+=w
+            mst_Tree.append(e)
+            if (len(listofSet)==1) : break     
+    return (totalpath,mst_Tree)
+    
          
     
 class AStarFoodSearchAgent(SearchAgent):
@@ -683,7 +535,7 @@ class AStarFoodSearchAgent(SearchAgent):
 class GreedyFoodSearchAgent(SearchAgent):
   def __init__(self,searchFunction= None  ,searchType=FoodSearchProblem):
     self.searchType=searchType  
-    self.searchFunction=lambda x: search.greedySearch(x, getFoodHeuristic(None))
+    self.searchFunction=search.greedySearch
     SearchAgent.__init__(self, self.searchFunction,self.searchType)  
     
   def registerInitialState(self, state):
@@ -705,8 +557,8 @@ class GreedyFoodSearchAgent(SearchAgent):
     
     problem =self.searchType(state)
     
-    self.searchFunction=lambda x: search.greedySearch(x, getFoodHeuristic(state))
-    self.actions=self.searchFunction(problem);
+    self.searchFunction=search.greedySearch
+    self.actions=self.searchFunction(problem,myFunc1);
     
      
     print 'Path found with total cost of %d in %.1f seconds' % (problem.getCostOfActions(self.actions), time.time() - starttime)
