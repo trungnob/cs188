@@ -77,8 +77,6 @@ def depthFirstSearch(problem):
       node=fringe.pop()
       state,listActions,cost=node.state,node.listActions,node.cost
       if problem.isGoalState(state):
-          print(listActions)
-          print(cost)
           return listActions
       if state not in visitedStates:
               visitedStates.add(state)
@@ -88,9 +86,7 @@ def depthFirstSearch(problem):
               for sucFn in listSucessors:
                   nxtState, nxtAction, newCost=sucFn
                   cost=saveCost 
-                  newListActions=[]
-                  for stuffs in listActions: 
-                      newListActions.append(stuffs)
+                  newListActions=list(listActions)
                   newListActions.append(nxtAction)
                   cost+=newCost
                   newNode=stateNode(nxtState,newListActions,cost)
@@ -115,8 +111,6 @@ def breadthFirstSearch(problem):
       node=fringe.pop()
       state,listActions,cost=node.state,node.listActions,node.cost
       if problem.isGoalState(state):
-          print(listActions)
-          print(cost)
           return listActions
       listSucessors=problem.getSuccessors(state);
       saveCost=cost 
@@ -148,8 +142,6 @@ def uniformCostSearch(problem):
       node=fringe.pop()
       state,listActions,cost=node.state,node.listActions,node.cost
       if problem.isGoalState(state):
-          print(listActions)
-          print(cost)
           return listActions
       if state not in visitedStates:
               visitedStates.add(state)
@@ -158,9 +150,7 @@ def uniformCostSearch(problem):
               for sucFn in listSucessors:
                   nxtState, nxtAction, newCost=sucFn
                   cost=saveCost 
-                  newListActions=[]
-                  for stuffs in listActions: 
-                       newListActions.append(stuffs)
+                  newListActions=list(listActions)
                   newListActions.append(nxtAction)
                   cost+=newCost
                   newNode=stateNode(nxtState,newListActions,cost)
@@ -194,30 +184,29 @@ def aStarSearch(problem, heuristic=nullHeuristic):
       
       state,listActions,cost,Hvalue=node.state,node.listActions,node.cost,node.Hvalue
       if problem.isGoalState(state):
-          print(listActions)
-          print(cost)
           return listActions
       if state not in visitedStates:
               visitedStates.add(state)
               listSucessors=problem.getSuccessors(state);
               saveCost=cost
-            
               for sucFn in listSucessors:
                   nxtState, nxtAction, newCost=sucFn
                   cost=saveCost 
-                  newListActions=[]
-                  for stuffs in listActions: 
-                      newListActions.append(stuffs)
+                  newListActions=list(listActions)
                   newListActions.append(nxtAction)
                   cost+=newCost
                   newHvalue=heuristic(nxtState) 
-#                  if (Hvalue-newHvalue)>1 :
-#                      print('Here:')
-#                      print(Hvalue,newHvalue)
-#                      print(state[0])
-#                      print(state[1])
-#                      print(nxtState[0])
-#                      print(nxtState[1])  
+                #  if (newHvalue-Hvalue)>1 :
+                #       print('Here:')
+                #       print(cost+newHvalue)
+                #       print(Hvalue,newHvalue)
+                #       print(state[0])
+                #       print(state[1])
+                #       print(nxtState[0])
+                #       print(nxtState[1])  
+                #       Hvalue=heuristic(state)
+                #       newHvalue=heuristic(nxtState) 
+                       
                   priorityVal=newHvalue+cost
                   newNode=stateNode(nxtState,newListActions,cost,newHvalue)
                   fringe.push(newNode,priorityVal)
@@ -253,8 +242,6 @@ def greedySearch(problem, heuristic=nullHeuristic):
       
       state,listActions,cost,Hvalue=node.state,node.listActions,node.cost,node.Hvalue
       if problem.isGoalState(state):
-          print(listActions)
-          print(cost)
           return listActions
       if state not in visitedStates:
               visitedStates.add(state)
@@ -265,8 +252,7 @@ def greedySearch(problem, heuristic=nullHeuristic):
                   nxtState, nxtAction, newCost=sucFn
                   cost=saveCost 
                   newListActions=[]
-                  for stuffs in listActions: 
-                      newListActions.append(stuffs)
+                  newListActions=list(listActions)
                   newListActions.append(nxtAction)
                   cost+=newCost
                   newHvalue=heuristic(nxtState) 
