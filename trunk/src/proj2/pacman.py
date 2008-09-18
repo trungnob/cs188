@@ -471,7 +471,7 @@ def readCommand( argv ):
 
   pacman = pacmanType() # Figure out how to instantiate pacman
   if 'setDepth' in dir(pacman): pacman.setDepth(options.depth)
-  if 'useBetterEvaluationFunction' in dir(pacman) and options.betterEval: pacman.useBetterEvaluationFunction()
+  if 'useBetterEvaluation' in dir(pacman) and options.betterEval: pacman.useBetterEvaluation()
   try:
     import evaluation
     if 'setEvaluation' in dir(pacman):
