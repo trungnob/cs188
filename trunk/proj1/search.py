@@ -81,7 +81,6 @@ def depthFirstSearch(problem):
       if state not in visitedStates:
               visitedStates.add(state)
               listSucessors=problem.getSuccessors(state);
-              listSucessors.reverse()
               saveCost=cost
               for sucFn in listSucessors:
                   nxtState, nxtAction, newCost=sucFn
