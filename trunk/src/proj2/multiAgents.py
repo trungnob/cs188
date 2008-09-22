@@ -136,8 +136,12 @@ class MinimaxAgent(MultiAgentSearchAgent):
     numOfAgent=gameState.getNumAgents();
     trueDepth=numOfAgent*self.depth
     LegalActions=gameState.getLegalActions(0)
+    if Directions.STOP in LegalActions: 
+        LegalActions.remove(Directions.STOP)
     listNextStates=[gameState.generateSuccessor(0,action) for action in LegalActions ]
     v=[self.MiniMax_Value(numOfAgent,1,nextGameState,trueDepth-1)for nextGameState in listNextStates] 
+    v.reverse()
+    LegalActions.reverse()
     action=LegalActions[v.index(max(v))]
     return action
   def MiniMax_Value(self,numOfAgent,agentIndex, gameState, depth):
