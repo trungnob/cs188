@@ -127,15 +127,25 @@ class MinimaxAgent(MultiAgentSearchAgent):
   """
     Your minimax agent (question 2)
   """
-    
   def getAction(self, gameState):
     """
       Returns the minimax action from the current gameState using self.depth 
       and self.evaluationFunction.
     """
     "*** YOUR CODE HERE ***"
+    numOfAgent=gameState.getNumAgents();
+    MiniMax_Value()
     util.raiseNotDefined()
-    
+  def MiniMax_Value(self,numOfAgent,agentIndex, gameState, depth):
+      LegalActions=gameState.getLegalActions(agentIndex)
+      listNextStates=[gameState.generateSuccessor(agentIndex,action) for action in LegalActions ]
+      if (gameState.isLose() or gameState.isWin() or depth==0): 
+              return self.evaluationFunction(gameState)
+      else:
+          if (agentIndex==0):
+              return max([MiniMax_Value(numOfAgent,(agentIndex+1)%numOfAgent,nextState,depth-1) for nextState in listNextStates] )
+          else :
+              return min([MiniMax_Value(numOfAgent,(agentIndex+1)%numOfAgent,nextState,depth-1) for nextState in listNextStates])
 class AlphaBetaAgent(MultiAgentSearchAgent):
   """
     Your minimax agent with alpha-beta pruning (question 3)
