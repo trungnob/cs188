@@ -134,9 +134,12 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
     "*** YOUR CODE HERE ***"
     numOfAgent=gameState.getNumAgents();
-    trueDepth=numOfAgent&self.depth
-    v=self.MiniMax_Value(numOfAgent,0,gameState,trueDepth)
-    util.raiseNotDefined()
+    trueDepth=numOfAgent*self.depth
+    LegalActions=gameState.getLegalActions(0)
+    listNextStates=[gameState.generateSuccessor(0,action) for action in LegalActions ]
+    v=[self.MiniMax_Value(numOfAgent,1,nextGameState,trueDepth-1)for nextGameState in listNextStates] 
+    action=LegalActions[v.index(max(v))]
+    return action
   def MiniMax_Value(self,numOfAgent,agentIndex, gameState, depth):
       LegalActions=gameState.getLegalActions(agentIndex)
       listNextStates=[gameState.generateSuccessor(agentIndex,action) for action in LegalActions ]
