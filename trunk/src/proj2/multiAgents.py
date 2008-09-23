@@ -162,10 +162,11 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     Your minimax agent with alpha-beta pruning (question 3)
   """
 
-  def Alpha_Beta_Value(self, numOfAgent, agentIndex, state, depth, alpha, beta):
+  def Alpha_Beta_Value(self, numOfAgent, agentIndex, gameState, depth, alpha, beta):
       LegalActions=gameState.getLegalActions(agentIndex)
       listNextStates=[gameState.generateSuccessor(agentIndex,action) for action in LegalActions ]
-      # terminal test
+      v = None
+      # terminal test      
       if (gameState.isLose() or gameState.isWin() or depth==0): 
               return self.evaluationFunction(gameState)
       else:
@@ -173,7 +174,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
           if (agentIndex == 0):
               for nextState in listNextStates:
                   v = max(self.Alpha_Beta_Value(numOfAgent, (agentIndex+1)%numOfAgent, nextState, depth-1, alpha, beta), v)
-                  if (v > beta):
+                  if (v >= beta):
                       return v
                   alpha = max(alpha, v)
               return v
@@ -181,9 +182,9 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
           else:
               for nextState in listNextStates:
                   v = min(self.Alpha_Beta_Value(numOfAgent, (agentIndex+1)%numOfAgent, nextState, depth-1, alpha, beta), v)
-                  if (v < alpha):
+                  if (v <= alpha):
                       return v
-                  beta = max(beta, v)
+                  beta = min(beta, v)
               return v
               
   def getAction(self, gameState):
@@ -194,14 +195,21 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     numOfAgent=gameState.getNumAgents();
     trueDepth=numOfAgent*self.depth
     LegalActions=gameState.getLegalActions(0)
+    
+    # remove stop action from list of legal actions
     if Directions.STOP in LegalActions: 
         LegalActions.remove(Directions.STOP)
-    listNextStates=[gameState.generateSuccessor(0,action) for action in LegalActions ]
-    #print(self.Alpha_Beta_Value(numOfAgent,0,gameState,trueDepth))
-    v=[self.Alpha_Beta_Value(numOfAgent,1,nextGameState,trueDepth-1) for nextGameState in listNextStates] 
+    
+    listNextStates = [gameState.generateSuccessor(0,action) for action in LegalActions ]
+    
+    # check whether minimax value for -l minimaxClassic are 9, 8 , 7, -492
+    # print(self.Alpha_Beta_Value(numOfAgent,0,gameState,trueDepth))
+    
+    # as long as beta is above the upper bound of the eval function
+    v = [self.Alpha_Beta_Value(numOfAgent,1,nextGameState,trueDepth-1, 0, 1000000000000000) for nextGameState in listNextStates] 
     v.reverse()
     LegalActions.reverse()
-    action=LegalActions[v.index(max(v))]
+    action = LegalActions[v.index(max(v))]
     return action
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
