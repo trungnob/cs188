@@ -139,11 +139,13 @@ class MinimaxAgent(MultiAgentSearchAgent):
     if Directions.STOP in LegalActions: 
         LegalActions.remove(Directions.STOP)
     listNextStates=[gameState.generateSuccessor(0,action) for action in LegalActions ]
-    v=[self.MiniMax_Value(numOfAgent,1,nextGameState,trueDepth-1)for nextGameState in listNextStates] 
+    #print(self.MiniMax_Value(numOfAgent,0,gameState,trueDepth))
+    v=[self.MiniMax_Value(numOfAgent,1,nextGameState,trueDepth-1) for nextGameState in listNextStates] 
     v.reverse()
     LegalActions.reverse()
     action=LegalActions[v.index(max(v))]
     return action
+
   def MiniMax_Value(self,numOfAgent,agentIndex, gameState, depth):
       LegalActions=gameState.getLegalActions(agentIndex)
       listNextStates=[gameState.generateSuccessor(agentIndex,action) for action in LegalActions ]
@@ -154,17 +156,44 @@ class MinimaxAgent(MultiAgentSearchAgent):
               return max([self.MiniMax_Value(numOfAgent,(agentIndex+1)%numOfAgent,nextState,depth-1) for nextState in listNextStates] )
           else :
               return min([self.MiniMax_Value(numOfAgent,(agentIndex+1)%numOfAgent,nextState,depth-1) for nextState in listNextStates])
+
 class AlphaBetaAgent(MultiAgentSearchAgent):
   """
     Your minimax agent with alpha-beta pruning (question 3)
   """
+
+  def Alpha_Beta_Value(self, numOfAgent, agentIndex, state, depth, alpha, beta):
+      LegalActions=gameState.getLegalActions(agentIndex)
+      listNextStates=[gameState.generateSuccessor(agentIndex,action) for action in LegalActions ]
+      # terminal test
+      if (gameState.isLose() or gameState.isWin() or depth==0): 
+              return self.evaluationFunction(gameState)
+      v = None
+      else:
+          # if Pacman
+          if (agentIndex == 0):
+              for nextState in listNextStates:
+                  max([self.Alpha_Beta_Value(numOfAgent, (agentIndex+1)%numOfAgent, nextState, depth-1, alpha, beta)
+          else:
+
     
   def getAction(self, gameState):
     """
       Returns the minimax action using self.depth and self.evaluationFunction
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+        numOfAgent=gameState.getNumAgents();
+    trueDepth=numOfAgent*self.depth
+    LegalActions=gameState.getLegalActions(0)
+    if Directions.STOP in LegalActions: 
+        LegalActions.remove(Directions.STOP)
+    listNextStates=[gameState.generateSuccessor(0,action) for action in LegalActions ]
+    #print(self.Alpha_Beta_Value(numOfAgent,0,gameState,trueDepth))
+    v=[self.Alpha_Beta_Value(numOfAgent,1,nextGameState,trueDepth-1) for nextGameState in listNextStates] 
+    v.reverse()
+    LegalActions.reverse()
+    action=LegalActions[v.index(max(v))]
+    return action
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
   """
