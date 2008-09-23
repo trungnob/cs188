@@ -168,21 +168,30 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
       # terminal test
       if (gameState.isLose() or gameState.isWin() or depth==0): 
               return self.evaluationFunction(gameState)
-      v = None
       else:
           # if Pacman
           if (agentIndex == 0):
               for nextState in listNextStates:
-                  max([self.Alpha_Beta_Value(numOfAgent, (agentIndex+1)%numOfAgent, nextState, depth-1, alpha, beta)
+                  v = max(self.Alpha_Beta_Value(numOfAgent, (agentIndex+1)%numOfAgent, nextState, depth-1, alpha, beta), v)
+                  if (v > beta):
+                      return v
+                  alpha = max(alpha, v)
+              return v
+          # if Ghost
           else:
-
-    
+              for nextState in listNextStates:
+                  v = min(self.Alpha_Beta_Value(numOfAgent, (agentIndex+1)%numOfAgent, nextState, depth-1, alpha, beta), v)
+                  if (v < alpha):
+                      return v
+                  beta = max(beta, v)
+              return v
+              
   def getAction(self, gameState):
     """
       Returns the minimax action using self.depth and self.evaluationFunction
     """
     "*** YOUR CODE HERE ***"
-        numOfAgent=gameState.getNumAgents();
+    numOfAgent=gameState.getNumAgents();
     trueDepth=numOfAgent*self.depth
     LegalActions=gameState.getLegalActions(0)
     if Directions.STOP in LegalActions: 
