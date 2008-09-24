@@ -238,13 +238,15 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
       LegalActions=gameState.getLegalActions(agentIndex)
       listNextStates=[gameState.generateSuccessor(agentIndex,action) for action in LegalActions ]
       if (gameState.isLose() or gameState.isWin() or depth==0): 
-              return (1/len(listNextStates))*self.evaluationFunction(gameState)
+              return self.evaluationFunction(gameState)
       else:
           if (agentIndex==0):
               return max([self.Expectimax_Value(numOfAgent,(agentIndex+1)%numOfAgent,nextState,depth-1) for nextState in listNextStates] )
           else :
-              return min([self.Expectimax_Value(numOfAgent,(agentIndex+1)%numOfAgent,nextState,depth-1) for nextState in listNextStates])
-
+              listStuff=[self.Expectimax_Value(numOfAgent,(agentIndex+1)%numOfAgent,nextState,depth-1) for nextState in listNextStates]
+              return sum(listStuff)/len(listStuff)
+ 
+    
   def getAction(self, gameState):
     """
       Returns the expectimax action using self.depth and self.evaluationFunction
@@ -261,9 +263,17 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
     listNextStates=[gameState.generateSuccessor(0,action) for action in LegalActions ]
     #print(self.Expectimax_Value(numOfAgent,0,gameState,trueDepth))
     v=[self.Expectimax_Value(numOfAgent,1,nextGameState,trueDepth-1) for nextGameState in listNextStates] 
+    MaxV=max(v)
+    listMax=[]
+    for i in range(0,len(v)):
+        if v[i]==MaxV:
+             listMax.append(i)
+    i = random.randint(0,len(listMax)-1)
+    
     print(LegalActions)
     print(v)
-    action=LegalActions[v.index(max(v))]
+    print(listMax)
+    action=LegalActions[listMax[i]]
     return action
 
 def betterEvaluationFunction(currentGameState):
