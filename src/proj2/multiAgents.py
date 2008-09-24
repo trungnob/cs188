@@ -141,8 +141,8 @@ class MinimaxAgent(MultiAgentSearchAgent):
     listNextStates=[gameState.generateSuccessor(0,action) for action in LegalActions ]
     #print(self.MiniMax_Value(numOfAgent,0,gameState,trueDepth))
     v=[self.MiniMax_Value(numOfAgent,1,nextGameState,trueDepth-1) for nextGameState in listNextStates] 
-    v.reverse()
-    LegalActions.reverse()
+    print(LegalActions)
+    print(v)
     action=LegalActions[v.index(max(v))]
     return action
 
@@ -165,13 +165,14 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
   def Alpha_Beta_Value(self, numOfAgent, agentIndex, gameState, depth, alpha, beta):
       LegalActions=gameState.getLegalActions(agentIndex)
       listNextStates=[gameState.generateSuccessor(agentIndex,action) for action in LegalActions ]
-      v = None
+      
       # terminal test      
       if (gameState.isLose() or gameState.isWin() or depth==0): 
               return self.evaluationFunction(gameState)
       else:
           # if Pacman
           if (agentIndex == 0):
+              v=-1e308
               for nextState in listNextStates:
                   v = max(self.Alpha_Beta_Value(numOfAgent, (agentIndex+1)%numOfAgent, nextState, depth-1, alpha, beta), v)
                   if (v >= beta):
@@ -180,6 +181,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
               return v
           # if Ghost
           else:
+              v=1e308
               for nextState in listNextStates:
                   v = min(self.Alpha_Beta_Value(numOfAgent, (agentIndex+1)%numOfAgent, nextState, depth-1, alpha, beta), v)
                   if (v <= alpha):
@@ -206,9 +208,9 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     # print(self.Alpha_Beta_Value(numOfAgent,0,gameState,trueDepth))
     
     # as long as beta is above the upper bound of the eval function
-    v = [self.Alpha_Beta_Value(numOfAgent,1,nextGameState,trueDepth-1, 0, 1000000000000000) for nextGameState in listNextStates] 
-    v.reverse()
-    LegalActions.reverse()
+    v = [self.Alpha_Beta_Value(numOfAgent,1,nextGameState,trueDepth-1, -1e308, 1e308) for nextGameState in listNextStates] 
+    print(LegalActions)
+    print(v)
     action = LegalActions[v.index(max(v))]
     return action
 
