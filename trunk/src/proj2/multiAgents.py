@@ -218,7 +218,17 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
   """
     Your expectimax agent (question 4)
   """
-    
+  def Expectimax_Value(self,numOfAgent,agentIndex, gameState, depth):
+      LegalActions=gameState.getLegalActions(agentIndex)
+      listNextStates=[gameState.generateSuccessor(agentIndex,action) for action in LegalActions ]
+      if (gameState.isLose() or gameState.isWin() or depth==0): 
+              return (1/len(listNextStates))*self.evaluationFunction(gameState)
+      else:
+          if (agentIndex==0):
+              return max([self.Expectimax_Value(numOfAgent,(agentIndex+1)%numOfAgent,nextState,depth-1) for nextState in listNextStates] )
+          else :
+              return min([self.Expectimax_Value(numOfAgent,(agentIndex+1)%numOfAgent,nextState,depth-1) for nextState in listNextStates])
+
   def getAction(self, gameState):
     """
       Returns the expectimax action using self.depth and self.evaluationFunction
@@ -227,7 +237,18 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
       legal moves.
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    numOfAgent=gameState.getNumAgents();
+    trueDepth=numOfAgent*self.depth
+    LegalActions=gameState.getLegalActions(0)
+    if Directions.STOP in LegalActions: 
+        LegalActions.remove(Directions.STOP)
+    listNextStates=[gameState.generateSuccessor(0,action) for action in LegalActions ]
+    #print(self.Expectimax_Value(numOfAgent,0,gameState,trueDepth))
+    v=[self.Expectimax_Value(numOfAgent,1,nextGameState,trueDepth-1) for nextGameState in listNextStates] 
+    print(LegalActions)
+    print(v)
+    action=LegalActions[v.index(max(v))]
+    return action
 
 def betterEvaluationFunction(currentGameState):
   """
