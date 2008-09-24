@@ -141,9 +141,17 @@ class MinimaxAgent(MultiAgentSearchAgent):
     listNextStates=[gameState.generateSuccessor(0,action) for action in LegalActions ]
     #print(self.MiniMax_Value(numOfAgent,0,gameState,trueDepth))
     v=[self.MiniMax_Value(numOfAgent,1,nextGameState,trueDepth-1) for nextGameState in listNextStates] 
+    MaxV=max(v)
+    listMax=[]
+    for i in range(0,len(v)):
+        if v[i]==MaxV:
+             listMax.append(i)
+    i = random.randint(0,len(listMax)-1)
+    
     print(LegalActions)
     print(v)
-    action=LegalActions[v.index(max(v))]
+    print(listMax)
+    action=LegalActions[listMax[i]]
     return action
 
   def MiniMax_Value(self,numOfAgent,agentIndex, gameState, depth):
@@ -209,9 +217,17 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     
     # as long as beta is above the upper bound of the eval function
     v = [self.Alpha_Beta_Value(numOfAgent,1,nextGameState,trueDepth-1, -1e308, 1e308) for nextGameState in listNextStates] 
+    MaxV=max(v)
+    listMax=[]
+    for i in range(0,len(v)):
+        if v[i]==MaxV:
+             listMax.append(i)
+    i = random.randint(0,len(listMax)-1)
+    
     print(LegalActions)
     print(v)
-    action = LegalActions[v.index(max(v))]
+    print(listMax)
+    action=LegalActions[listMax[i]]
     return action
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
