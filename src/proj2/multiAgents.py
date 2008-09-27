@@ -109,7 +109,6 @@ class MultiAgentSearchAgent(Agent):
   def __init__(self, evalFn = scoreEvaluationFunction):
     self.index = 0 # Pacman is always agent index 0
     self.evaluationFunction = evalFn
-    
   def setDepth(self, depth):
     """
       This is a hook for feeding in command line argument -d or --depth
@@ -120,6 +119,8 @@ class MultiAgentSearchAgent(Agent):
     """
       This is a hook for feeding in command line argument -b or --betterEvaluation
     """
+    print("I was here")
+    betterEvaluationFunction.firstCalled=True;
     self.evaluationFunction = betterEvaluationFunction
     
 
@@ -277,13 +278,49 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
     return action
 
 def betterEvaluationFunction(currentGameState):
-  """
-    Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
-    evaluation function (question 5).
+      """
+        Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
+        evaluation function (question 5).
     
-    DESCRIPTION: <write something here so we know what you did>
-  """
-  "*** YOUR CODE HERE ***"
-  util.raiseNotDefined()
-
+        DESCRIPTION: <write something here so we know what you did>
+      """
+      if (betterEvaluationFunction.firstCalled): 
+          #This indicates the function whether first called or not
+          #use this to initialize any variable which you wish don't do this again and again
+          print "betterEvaluationFunction is at first Called"
+      if currentGameState.isLose(): return -1e308
+      if currentGameState.isWin() : return 1e308          
+      returnscore= 0.0
+      newPos = currentGameState.getPacmanState().getPosition()
+      FoodList = currentGameState.getFood().asList()
+      GhostStates = currentGameState.getGhostStates() 
+      GhostStates.sort(lambda x,y: disCmp(x.getPosition(),y.getPosition(),newPos))
+      GhostPositions=[Ghost.getPosition() for Ghost in GhostStates]
+      newScaredTimes = [ghostState.scaredTimer for ghostState in GhostStates]
+      
+      wFood=2.0;
+      wGhost=-4.0;
+      wScaredGhost=4.0;
+      #foodList.sort(lambda x,y: util.manhattanDistance(newPos, x)-util.manhattanDistance(newPos, y))
+      foodDistances=[util.manhattanDistance(newPos, x) for x in FoodList]
+      closestFoodDistance=min(foodDistances)
+      #ghostDistances=[util.manhattanDistance(newPos, x) for x in GhostPositions]
+      #closestGhostDistance=min(ghostDistances)
+      closestGhost=GhostStates[0]
+      closestGhostDistance=util.manhattanDistance(closestGhost.getPosition(), newPos)
+      if closestGhostDistance>4:#Ghost too far ignore Ghost
+         wFood=4.0;
+         wGhost=-0.0;
+         wScaredGhost=0.0;
+      else: 
+         wFood=1.0;
+         wGhost=-4.0;
+         wScaredGhost=4.0;
+      if closestGhost.scaredTimer>closestGhostDistance:
+          returnScore=wFood/closestFoodDistance+wScaredGhost/closestGhostDistance+currentGameState.getScore()
+      else: 
+          returnScore=wFood/closestFoodDistance+wGhost/closestGhostDistance+currentGameState.getScore()
+      betterEvaluationFunction.firstCalled=False;
+      return returnScore
+      
 DISTANCE_CALCULATORS = {}
