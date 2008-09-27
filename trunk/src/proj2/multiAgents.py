@@ -288,16 +288,19 @@ def betterEvaluationFunction(currentGameState):
           #This indicates the function whether first called or not
           #use this to initialize any variable which you wish don't do this again and again
           print "betterEvaluationFunction is at first Called"
-      if currentGameState.isLose(): return -1e308
-      if currentGameState.isWin() : return 1e308          
-      returnscore= 0.0
+      if currentGameState.isLose():
+           return -1e308
+      if currentGameState.isWin() : 
+          return 1e308          
+      returnScore= 0.0
       newPos = currentGameState.getPacmanState().getPosition()
       FoodList = currentGameState.getFood().asList()
       GhostStates = currentGameState.getGhostStates() 
       GhostStates.sort(lambda x,y: disCmp(x.getPosition(),y.getPosition(),newPos))
       GhostPositions=[Ghost.getPosition() for Ghost in GhostStates]
       newScaredTimes = [ghostState.scaredTimer for ghostState in GhostStates]
-      
+      capsules=currentGameState.getCapsules();
+      distanceToCapsules=[util.manhattanDistance(newPos, x) for x in capsules]
       wFood=2.0;
       wGhost=-4.0;
       wScaredGhost=4.0;
@@ -308,19 +311,23 @@ def betterEvaluationFunction(currentGameState):
       #closestGhostDistance=min(ghostDistances)
       closestGhost=GhostStates[0]
       closestGhostDistance=util.manhattanDistance(closestGhost.getPosition(), newPos)
-      if closestGhostDistance>4:#Ghost too far ignore Ghost
-         wFood=4.0;
+      
+      if closestGhostDistance>3:#Ghost too far ignore Ghost
+         wFood=2.0;
          wGhost=-0.0;
-         wScaredGhost=0.0;
+         if closestGhost.scaredTimer>3:
+            wScaredGhost=4;
+         else:
+            wScaredGhost=1;
       else: 
          wFood=1.0;
          wGhost=-4.0;
          wScaredGhost=4.0;
-      if closestGhost.scaredTimer>closestGhostDistance:
+      if closestGhost.scaredTimer>3:
           returnScore=wFood/closestFoodDistance+wScaredGhost/closestGhostDistance+currentGameState.getScore()
       else: 
           returnScore=wFood/closestFoodDistance+wGhost/closestGhostDistance+currentGameState.getScore()
       betterEvaluationFunction.firstCalled=False;
-      return returnScore
       
+      return returnScore
 DISTANCE_CALCULATORS = {}
