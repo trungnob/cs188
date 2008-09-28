@@ -282,6 +282,9 @@ def actualGhostDistance(gameState, ghostPositions):
     visited = {}
     startPosition = gameState.getPacmanPosition()
     fringe = util.FasterPriorityQueue()
+    ghost_fringe = util.FasterPriorityQueue()
+    for ghost in ghostPositions:
+        ghost_fringe.push(ghost, util.manhattanDistance(ghost, startPosition))
     curDist = 0
     fringe.push(startPosition, curDist)
     visited[startPosition] = True
@@ -290,28 +293,27 @@ def actualGhostDistance(gameState, ghostPositions):
     foodGrid = gameState.getFood()
     isFood   = lambda(x, y): foodGrid[x][y]
     isGhost  = lambda(x, y): (x, y) in ghostPositions
-    
-    while not fringe.isEmpty():
-        curState = fringe.pop()
-        # if goal state is found return the distance
-        if (isFood(curState)):
-            #print "returned: %d" % curDist
-            return (curState, curDist)
-            break
-        # if you find a ghost before you find your closest food!! you are screwed =(
-        #if (isGhost(curState)):
-        #    ghostInRange = True
-        curDist = curDist + 1
-        for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
-            x,y = curState
-            dx, dy = Actions.directionToVector(action)
-            nextx, nexty = int(x + dx), int(y + dy)
-            nextState = (nextx, nexty)
-            if ((not walls[nextx][nexty]) and (nextState not in visited)):
-                curDist = curDist + util.manhattanDistance(targetFood, nextState)
-                visited[nextState] = True
-                fringe.push(nextState, curDist)    
-    return None
+    GhostList = []
+    while not ghost_fringe.isEmpty():
+        curGhost = ghost_fringe.pop()
+        while not fringe.isEmpty():
+            curState = fringe.pop()
+            # if goal state is found return the distance
+            if (curState == curGhost):
+                #print "returned: %d" % curDist
+                GhostList = GhostList + [curDist]
+                break
+            curDist = curDist + 1
+            for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
+                x,y = curState
+                dx, dy = Actions.directionToVector(action)
+                nextx, nexty = int(x + dx), int(y + dy)
+                nextState = (nextx, nexty)
+                if ((not walls[nextx][nexty]) and (nextState not in visited)):
+                    thisDist = curDist + util.manhattanDistance(curGhost, nextState)
+                    visited[nextState] = True
+                    fringe.push(nextState, thisDist)
+    return GhostList
 
 def actualFoodDistance(gameState, targetFood):
     from game import Directions
@@ -345,10 +347,92 @@ def actualFoodDistance(gameState, targetFood):
             nextx, nexty = int(x + dx), int(y + dy)
             nextState = (nextx, nexty)
             if ((not walls[nextx][nexty]) and (nextState not in visited)):
-                curDist = curDist + util.manhattanDistance(targetFood, nextState)
+                thisDist = curDist + util.manhattanDistance(targetFood, nextState)
                 visited[nextState] = True
-                fringe.push(nextState, curDist)    
+                fringe.push(nextState, thisDist)    
     return None
+
+class Node:
+    def __init__(self, state, walls, parent=None, action=None, path_cost=0):
+        self.state = state
+        self.parent = parent
+        self.action = action
+        self.walls = walls
+        if parent:
+            self.path_cost = parent.path_cost + path_cost
+            self.depth = parent.depth + 1
+        else:
+            self.path_cost = path_cost
+            self.depth = 0
+    
+    def giveNodePath(self):
+        x, result = self, [self]
+        while x.parent:
+            result.append(x.parent)
+            x = x.parent
+        return result.reverse()
+      
+    def path(self):
+      states, actions, cost = [], [], 0.0
+      CurrentNode = self
+      cost = CurrentNode.path_cost
+      while CurrentNode.parent:
+        states = [CurrentNode.state] + states
+        actions = [CurrentNode.action] + actions
+        CurrentNode = CurrentNode.parent
+      return actions
+    
+    def expand(self, problem):
+        return [Node(next, self, act, cost)
+          for (next,act,cost) in getSuccessors(self.state.getPacmanPosition(), self.walls, )]
+
+def getSuccessors(self, state, walls, costFn):
+    successors = []
+    for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
+      x,y = state
+      dx, dy = Actions.directionToVector(action)
+      nextx, nexty = int(x + dx), int(y + dy)
+      if not walls[nextx][nexty]:
+        nextState = (nextx, nexty)
+        cost = self.costFn(nextState)
+        successors.append((nextState, action, cost))
+    if state not in self._visited:
+      self._visited[state] = True
+      self._visitedlist.append(state)
+    return successors
+
+def myGraphSearch(gameState, fringe, g, h):
+  visited = {}
+  startnode = Node(gameState.getPacmanPosition(), gameState.getWalls())
+  if g or h:
+    fringe.push(startnode, g(startnode) + h(startnode.state))
+  else:
+    fringe.push(startnode)
+  while not fringe.isEmpty():
+    node = fringe.pop()
+    foodGrid = gameState.getFood()
+    isFood   = lambda(x, y): foodGrid[x][y]
+    if (isFood(node.state)):
+    #if problem.isGoalState(node.state): 
+      return node.path()
+    if node.state not in visited:
+      visited[node.state] = True
+      for nextnode in node.expand(node):
+        if g or h:
+          fringe.push(nextnode, g(nextnode) + h(nextnode.state))
+        else:
+          fringe.push(nextnode)
+  return None
+
+def truePathCost(node):
+  return node.path_cost
+  
+def nullHeuristic(state):
+  """
+  A heuristic function estimates the cost from the current state to the nearest
+  goal in the provided searchProblem.  This one is trivial.
+  """
+  return 0
 
 def betterEvaluationFunction(currentGameState):
       """
@@ -374,7 +458,7 @@ def betterEvaluationFunction(currentGameState):
       closestGhost=GhostStates[0]
       closestGhostDistance=util.manhattanDistance(GhostStates[0].getPosition(), newPos)
       capsules = currentGameState.getCapsules()
-      print "%d" % len(capsules)
+      #print "%d" % len(capsules)
 
       FoodList = currentGameState.getFood().asList()
       minPos = FoodList[0]
@@ -385,8 +469,8 @@ def betterEvaluationFunction(currentGameState):
             min = curDist
             minPos = food
       
-      actualGhostDists = actualGhostDistance(currentGameState, GhostPositions)
-      targetFoodPosition, closestFoodDistance = actualFoodDistance(currentGameState, minPos)
+      #actualGhostList = actualGhostDistance(currentGameState, GhostPositions)
+      actualActions = myGraphSearch(currentGameState, util.PriorityQueue(), truePathCost, lambda(Pos):util.manhattanDistance(Pos, minPos))
       # for any centers of mass created by any two ghosts will be recorded
       # the closest one from Pacman will be noted and a special weight will be assigned.
       allTwoGhosts = allCombo(GhostPositions)
@@ -419,7 +503,7 @@ def betterEvaluationFunction(currentGameState):
           returnScore = wFood/closestFoodDistance+wScaredGhost/closestGhostDistance+currentGameState.getScore()
       else: 
           returnScore=wFood/closestFoodDistance+wGhost/closestGhostDistance+currentGameState.getScore()
-      betterEvaluationFunction.firstCalled=False;
+      betterEvaluationFunction.firstCalled = False;
       return returnScore
 
 def allCombo(myList):
