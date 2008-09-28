@@ -276,7 +276,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
     action=LegalActions[listMax[i]]
     return action
 
-def actualAStartDistance(gameState, ghostPositions):
+def actualAStartDistance(gameState, targetFood):
     from game import Directions
     from game import Actions
     visited = {}
@@ -298,11 +298,11 @@ def actualAStartDistance(gameState, ghostPositions):
         # if goal state is found return the distance
         if (isFood(curState)):
             #print "returned: %d" % curDist
-            return (curState, curDist, ghostInRange)
+            return (curState, curDist)
             break
         # if you find a ghost before you find your closest food!! you are screwed =(
-        if (isGhost(curState)):
-            ghostInRange = True
+        #if (isGhost(curState)):
+        #    ghostInRange = True
         curDist = curDist + 1
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             x,y = curState
@@ -310,6 +310,7 @@ def actualAStartDistance(gameState, ghostPositions):
             nextx, nexty = int(x + dx), int(y + dy)
             nextState = (nextx, nexty)
             if ((not walls[nextx][nexty]) and (nextState not in visited)):
+                curDist = curDist + util.manhattanDistance(targetFood, nextState)
                 visited[nextState] = True
                 fringe.push(nextState, curDist)    
     return None
@@ -340,8 +341,16 @@ def betterEvaluationFunction(currentGameState):
       capsules = currentGameState.getCapsules()
       print "%d" % len(capsules)
 
-      targetFoodPosition, closestFoodDistance, ghostInRange = actualAStartDistance(currentGameState, GhostPositions)
-
+      FoodList = currentGameState.getFood().asList()
+      minPos = FoodList[0]
+      min = util.manhattanDistance(minPos, newPos)
+      for food in FoodList:
+        curDist = util.manhattanDistance(food, newPos)
+        if (curDist < min):
+            min = curDist
+            minPos = food
+      #targetFoodPosition, closestFoodDistance = actualAStartDistance(currentGameState, GhostPositions, minPos)
+      targetFoodPosition, closestFoodDistance = actualAStartDistance(currentGameState, minPos)
       # for any centers of mass created by any two ghosts will be recorded
       # the closest one from Pacman will be noted and a special weight will be assigned.
       allTwoGhosts = allCombo(GhostPositions)
@@ -352,7 +361,7 @@ def betterEvaluationFunction(currentGameState):
           y = (g1[1] + g2[1])/2
           centerOfGhosts = centerOfGhosts + [(x,y)]
       centerDistOfGhosts = [util.manhattanDistance(center, newPos) for center in centerOfGhosts]
-      fearful = min(centerDistOfGhosts)
+      #fearful = min(centerDistOfGhosts)
       
       # all ghost distances from Pacman
       allDistOfGhosts = [util.manhattanDistance(Pos, newPos) for Pos in GhostPositions]
@@ -365,11 +374,11 @@ def betterEvaluationFunction(currentGameState):
             wFood, wGhost, wScaredGhost = [2.0, -0.0, 4.0];
          else:
             wFood, wGhost, wScaredGhost = [2.0, -0.0, 4.0];
-      if (ghostInRange and closestFoodDistance < 5): 
-         wFood, wGhost, wScaredGhost    = [2.0, -5.0, 4.0];
+      #if (ghostInRange and closestFoodDistance < 5): 
+      #   wFood, wGhost, wScaredGhost    = [2.0, -5.0, 4.0];
       # you are gonna die anyway, why not die fat
-      if (fearful < 3 and crisis < (currentGameState.getNumAgents()-1)*3):
-         wFood, wGhost, wScaredGhost    = [9.0, -7.0, 9.0];   
+      #if (fearful < 3 and crisis < (currentGameState.getNumAgents()-1)*3):
+      #   wFood, wGhost, wScaredGhost    = [9.0, -7.0, 9.0];   
       if (closestGhost.scaredTimer > 3):
           returnScore = wFood/closestFoodDistance+wScaredGhost/closestGhostDistance+currentGameState.getScore()
       else: 
