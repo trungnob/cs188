@@ -358,22 +358,26 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
 def actualAStartDistance(gameState):
     from game import Directions
-    visited = []
+    from game import Actions
+    visited = {}
     fringe = util.FasterPriorityQueue()
     curDist = 0
-    fringe.push(gameState, curDist)
+    fringe.push(gameState.getPacmanPosition(), curDist)
+    
+    foodGrid = gameState.getFood()
+    Walls    = gameState.getWalls()
+    hasFood  = lambda (x, y): foodGrid[x][y]
+    
     while not fringe.isEmpty():
+        print "%d" % curDist
         curState = fringe.pop()
-        foodGrid = curState.getFood()
-        Walls = curState.getWalls()
-        hasFood = lambda (x, y): currentFood[x][y]
         # if goal state is found return the distance
-        if (hasFood(gameState.getPacmanPosition()) == True):
+        if (hasFood(curState) == True):
             return curDist
         successors = []
         curDist = curDist + 1
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
-            x,y = curState.getPacmanPosition()
+            x,y = curState
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
             if not Walls[nextx][nexty]:
@@ -382,7 +386,7 @@ def actualAStartDistance(gameState):
         if curState not in visited:
             visited[curState] = True
             for nextState in successors:
-                fringe.push(nextState)
+                fringe.push(nextState, curDist)
     return None
 
 def betterEvaluationFunction(currentGameState):
