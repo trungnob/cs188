@@ -342,7 +342,7 @@ def betterEvaluationFunction(currentGameState):
 
       wFood, wGhost, wScaredGhost       = [2.0, -4.0, 4.0];
       #if (closestGhostDistance > 3):#Ghost too far ignore Ghost
-      if (not ghostInRange):
+      if (closestGhostDistance > 1):
          if (closestGhost.scaredTimer > 3):
             wFood, wGhost, wScaredGhost = [2.0, -0.0, 4.0];
          else:
