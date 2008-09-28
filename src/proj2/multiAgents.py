@@ -337,6 +337,8 @@ def betterEvaluationFunction(currentGameState):
       newScaredTimes = [ghostState.scaredTimer for ghostState in GhostStates]
       closestGhost=GhostStates[0]
       closestGhostDistance=util.manhattanDistance(GhostStates[0].getPosition(), newPos)
+      capsules = currentGameState.getCapsules()
+      print "%d" % len(capsules)
 
       targetFoodPosition, closestFoodDistance, ghostInRange = actualAStartDistance(currentGameState, GhostPositions)
 
@@ -352,6 +354,10 @@ def betterEvaluationFunction(currentGameState):
       centerDistOfGhosts = [util.manhattanDistance(center, newPos) for center in centerOfGhosts]
       fearful = min(centerDistOfGhosts)
       
+      # all ghost distances from Pacman
+      allDistOfGhosts = [util.manhattanDistance(Pos, newPos) for Pos in GhostPositions]
+      crisis = sum(allDistOfGhosts)
+      
       wFood, wGhost, wScaredGhost       = [2.0, -4.0, 4.0];
       #if (closestGhostDistance > 3):#Ghost too far ignore Ghost
       if (closestGhostDistance > 1):
@@ -362,7 +368,7 @@ def betterEvaluationFunction(currentGameState):
       if (ghostInRange and closestFoodDistance < 5): 
          wFood, wGhost, wScaredGhost    = [2.0, -5.0, 4.0];
       # you are gonna die anyway, why not die fat
-      if (fearful < 3):
+      if (fearful < 3 and crisis < (currentGameState.getNumAgents()-1)*3):
          wFood, wGhost, wScaredGhost    = [9.0, -7.0, 9.0];   
       if (closestGhost.scaredTimer > 3):
           returnScore = wFood/closestFoodDistance+wScaredGhost/closestGhostDistance+currentGameState.getScore()
