@@ -1,3 +1,0 @@
-cs188-iy,trungtran154@berkeley.edu,Trung Tran
-cs188-cu, bernardw@gmail.com, bernard wong
- 
