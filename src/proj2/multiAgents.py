@@ -276,7 +276,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
     action=LegalActions[listMax[i]]
     return action
 
-def actualAStartDistance(gameState, targetFood):
+def actualGhostDistance(gameState, ghostPositions):
     from game import Directions
     from game import Actions
     visited = {}
@@ -291,7 +291,42 @@ def actualAStartDistance(gameState, targetFood):
     isFood   = lambda(x, y): foodGrid[x][y]
     isGhost  = lambda(x, y): (x, y) in ghostPositions
     
-    ghostInRange = False
+    while not fringe.isEmpty():
+        curState = fringe.pop()
+        # if goal state is found return the distance
+        if (isFood(curState)):
+            #print "returned: %d" % curDist
+            return (curState, curDist)
+            break
+        # if you find a ghost before you find your closest food!! you are screwed =(
+        #if (isGhost(curState)):
+        #    ghostInRange = True
+        curDist = curDist + 1
+        for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
+            x,y = curState
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            nextState = (nextx, nexty)
+            if ((not walls[nextx][nexty]) and (nextState not in visited)):
+                curDist = curDist + util.manhattanDistance(targetFood, nextState)
+                visited[nextState] = True
+                fringe.push(nextState, curDist)    
+    return None
+
+def actualFoodDistance(gameState, targetFood):
+    from game import Directions
+    from game import Actions
+    visited = {}
+    startPosition = gameState.getPacmanPosition()
+    fringe = util.FasterPriorityQueue()
+    curDist = 0
+    fringe.push(startPosition, curDist)
+    visited[startPosition] = True
+    
+    walls    = gameState.getWalls()
+    foodGrid = gameState.getFood()
+    isFood   = lambda(x, y): foodGrid[x][y]
+    #isGhost  = lambda(x, y): (x, y) in ghostPositions
     
     while not fringe.isEmpty():
         curState = fringe.pop()
@@ -349,8 +384,9 @@ def betterEvaluationFunction(currentGameState):
         if (curDist < min):
             min = curDist
             minPos = food
-      #targetFoodPosition, closestFoodDistance = actualAStartDistance(currentGameState, GhostPositions, minPos)
-      targetFoodPosition, closestFoodDistance = actualAStartDistance(currentGameState, minPos)
+      
+      actualGhostDists = actualGhostDistance(currentGameState, GhostPositions)
+      targetFoodPosition, closestFoodDistance = actualFoodDistance(currentGameState, minPos)
       # for any centers of mass created by any two ghosts will be recorded
       # the closest one from Pacman will be noted and a special weight will be assigned.
       allTwoGhosts = allCombo(GhostPositions)
