@@ -339,12 +339,19 @@ def betterEvaluationFunction(currentGameState):
       closestGhostDistance=util.manhattanDistance(GhostStates[0].getPosition(), newPos)
 
       targetFoodPosition, closestFoodDistance, ghostInRange = actualAStartDistance(currentGameState, GhostPositions)
-      
-      allX = [position[0] for position in GhostPositions]
-      allY = [position[1] for position in GhostPositions]
-      numOfGhost = len(GhostPositions)
-      centerOfGhosts = (sum(allX)/numOfGhost, sum(allY)/numOfGhost)
 
+      # for any centers of mass created by any two ghosts will be recorded
+      # the closest one from Pacman will be noted and a special weight will be assigned.
+      allTwoGhosts = allCombo(GhostPositions)
+      centerOfGhosts = []
+      for pair in allTwoGhosts:
+          g1, g2 = pair
+          x = (g1[0] + g2[0])/2
+          y = (g1[1] + g2[1])/2
+          centerOfGhosts = centerOfGhosts + [(x,y)]
+      centerDistOfGhosts = [util.manhattanDistance(center, newPos) for center in centerOfGhosts]
+      fearful = min(centerDistOfGhosts)
+      
       wFood, wGhost, wScaredGhost       = [2.0, -4.0, 4.0];
       #if (closestGhostDistance > 3):#Ghost too far ignore Ghost
       if (closestGhostDistance > 1):
@@ -354,13 +361,22 @@ def betterEvaluationFunction(currentGameState):
             wFood, wGhost, wScaredGhost = [2.0, -0.0, 1.0];
       if (ghostInRange): 
          wFood, wGhost, wScaredGhost    = [1.5, -4.0, 4.0];
-      if (util.manhattanDistance(centerOfGhosts, newPos) < 10):
-         wFood, wGhost, wScaredGhost    = [1.0, -9.0, 4.0];   
+      if (fearful < 8):
+         wFood, wGhost, wScaredGhost    = [1.0, -100.0, 4.0];   
       if (closestGhost.scaredTimer > 3):
           returnScore = wFood/closestFoodDistance+wScaredGhost/closestGhostDistance+currentGameState.getScore()
       else: 
           returnScore=wFood/closestFoodDistance+wGhost/closestGhostDistance+currentGameState.getScore()
       betterEvaluationFunction.firstCalled=False;
       return returnScore
-      
+
+def allCombo(myList):
+    all = []
+    if len(myList) == 0:
+        return []
+    head = myList.pop()
+    for i in myList:
+        all = all + [(head, i)]
+    return all + allCombo(myList)
+
 DISTANCE_CALCULATORS = {}
