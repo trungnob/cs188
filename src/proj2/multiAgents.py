@@ -361,8 +361,9 @@ def betterEvaluationFunction(currentGameState):
             wFood, wGhost, wScaredGhost = [2.0, -0.0, 4.0];
       if (ghostInRange and closestFoodDistance < 5): 
          wFood, wGhost, wScaredGhost    = [2.0, -5.0, 4.0];
-      if (fearful < 2):
-         wFood, wGhost, wScaredGhost    = [2.0, -6.0, 4.0];   
+      # you are gonna die anyway, why not die fat
+      if (fearful < 3):
+         wFood, wGhost, wScaredGhost    = [9.0, -7.0, 9.0];   
       if (closestGhost.scaredTimer > 3):
           returnScore = wFood/closestFoodDistance+wScaredGhost/closestGhostDistance+currentGameState.getScore()
       else: 
