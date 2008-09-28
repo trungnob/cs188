@@ -340,12 +340,8 @@ def betterEvaluationFunction(currentGameState):
 
       targetFoodPosition, closestFoodDistance, ghostInRange = actualAStartDistance(currentGameState, GhostPositions)
       
-      allX = []
-      allY = []
-      for position in GhostPositions:
-        x, y = position
-        allX=allX + [x]
-        allY=allY + [y]
+      allX = [position[0] for position in GhostPositions]
+      allY = [position[1] for position in GhostPositions]
       numOfGhost = len(GhostPositions)
       centerOfGhosts = (sum(allX)/numOfGhost, sum(allY)/numOfGhost)
 
@@ -356,8 +352,10 @@ def betterEvaluationFunction(currentGameState):
             wFood, wGhost, wScaredGhost = [2.0, -0.0, 4.0];
          else:
             wFood, wGhost, wScaredGhost = [2.0, -0.0, 1.0];
-      if (ghostInRange or util.manhattanDistance(centerOfGhosts, newPos) < 4): 
+      if (ghostInRange): 
          wFood, wGhost, wScaredGhost    = [1.5, -4.0, 4.0];
+      if (util.manhattanDistance(centerOfGhosts, newPos) < 10):
+         wFood, wGhost, wScaredGhost    = [1.0, -9.0, 4.0];   
       if (closestGhost.scaredTimer > 3):
           returnScore = wFood/closestFoodDistance+wScaredGhost/closestGhostDistance+currentGameState.getScore()
       else: 
