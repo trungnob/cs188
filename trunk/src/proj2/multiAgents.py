@@ -358,11 +358,11 @@ def betterEvaluationFunction(currentGameState):
          if (closestGhost.scaredTimer > 3):
             wFood, wGhost, wScaredGhost = [2.0, -0.0, 4.0];
          else:
-            wFood, wGhost, wScaredGhost = [2.0, -0.0, 1.0];
-      if (ghostInRange): 
-         wFood, wGhost, wScaredGhost    = [1.5, -4.0, 4.0];
-      if (fearful < 8):
-         wFood, wGhost, wScaredGhost    = [1.0, -100.0, 4.0];   
+            wFood, wGhost, wScaredGhost = [2.0, -0.0, 4.0];
+      if (ghostInRange and closestFoodDistance < 5): 
+         wFood, wGhost, wScaredGhost    = [2.0, -5.0, 4.0];
+      if (fearful < 2):
+         wFood, wGhost, wScaredGhost    = [2.0, -6.0, 4.0];   
       if (closestGhost.scaredTimer > 3):
           returnScore = wFood/closestFoodDistance+wScaredGhost/closestGhostDistance+currentGameState.getScore()
       else: 
