@@ -277,6 +277,114 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
     action=LegalActions[listMax[i]]
     return action
 
+# return myGraphSearch(problem, truePathCost, heuristic)
+#===============================================================================
+#          
+# class Node:
+#    def __init__(self, state, parent=None, action=None, path_cost=0):
+#        self.state = state
+#        self.parent = parent
+#        self.action = action
+#        if parent:
+#            self.path_cost = parent.path_cost + path_cost
+#            self.depth = parent.depth + 1
+#        else:
+#            self.path_cost = path_cost
+#            self.depth = 0
+#    
+#    def giveNodePath(self):
+#        x, result = self, [self]
+#        while x.parent:
+#            result.append(x.parent)
+#            x = x.parent
+#        return result.reverse()
+#      
+#    def path(self):
+#      states, actions, cost = [], [], 0.0
+#      CurrentNode = self
+#      cost = CurrentNode.path_cost
+#      while CurrentNode.parent:
+#        states = [CurrentNode.state] + states
+#        actions = [CurrentNode.action] + actions
+#        CurrentNode = CurrentNode.parent
+#      return actions
+#    
+#    def expand(self, problem):
+#        return [Node(next, self, act, cost)
+#          for (next,act,cost) in myGetSuccessors(self.state ,self.state.getPacmanPosition())]
+#        
+# from game import Actions
+# def myGetSuccessors(self, state):
+#    successors = []
+#    for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
+#      x,y = state
+#      dx, dy = Actions.directionToVector(action)
+#      nextx, nexty = int(x + dx), int(y + dy)
+#      myWalls = self.getWalls()
+#      if not myWalls[nextx][nexty]:
+#        nextState = (nextx, nexty)
+#        cost = 1
+#        successors.append( ( nextState, action, cost) )
+#    # Bookkeeping for display purposes      
+#    return successors
+# 
+# def truePathCost(node):
+#  return node.path_cost
+# 
+# def MyAStarSearch(gameState, g):
+#  fringe = util.PriorityQueue()
+#  visited = {}
+#  startnode = Node(gameState)
+#  if g:
+#    fringe.push(startnode, g(startnode))
+#  else:
+#    fringe.push(startnode)
+#  while not fringe.isEmpty():
+#    node = fringe.pop()
+#    #if problem.isGoalState(node.state): 
+#    currentFood = gameState.getFood()
+#    hasFood = lambda (x, y): currentFood[x][y]
+#    if (hasFood(gameState.getPacmanPosition())):
+#      return len(node.path())
+#    if node.state not in visited:
+#      visited[node.state] = True
+#      for nextnode in node.expand(gameState):
+#        if g:
+#          fringe.push(nextnode, g(nextnode))
+#        else:
+#          fringe.push(nextnode)
+#  return None
+#===============================================================================
+
+def actualAStartDistance(gameState):
+    from game import Directions
+    visited = []
+    fringe = util.FasterPriorityQueue()
+    curDist = 0
+    fringe.push(gameState, curDist)
+    while not fringe.isEmpty():
+        curState = fringe.pop()
+        foodGrid = curState.getFood()
+        Walls = curState.getWalls()
+        hasFood = lambda (x, y): currentFood[x][y]
+        # if goal state is found return the distance
+        if (hasFood(gameState.getPacmanPosition()) == True):
+            return curDist
+        successors = []
+        curDist = curDist + 1
+        for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
+            x,y = curState.getPacmanPosition()
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            if not Walls[nextx][nexty]:
+                nextState = (nextx, nexty)
+                successors.append(nextState)
+        if curState not in visited:
+            visited[curState] = True
+            for nextState in successors:
+                fringe.push(nextState)
+    return None
+
 def betterEvaluationFunction(currentGameState):
       """
         Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
@@ -306,7 +414,8 @@ def betterEvaluationFunction(currentGameState):
       wScaredGhost=4.0;
       #foodList.sort(lambda x,y: util.manhattanDistance(newPos, x)-util.manhattanDistance(newPos, y))
       foodDistances=[util.manhattanDistance(newPos, x) for x in FoodList]
-      closestFoodDistance=min(foodDistances)
+      #closestFoodDistance=min(foodDistances)
+      closestFoodDistance = actualAStartDistance(currentGameState)
       #ghostDistances=[util.manhattanDistance(newPos, x) for x in GhostPositions]
       #closestGhostDistance=min(ghostDistances)
       closestGhost=GhostStates[0]
@@ -330,4 +439,5 @@ def betterEvaluationFunction(currentGameState):
       betterEvaluationFunction.firstCalled=False;
       
       return returnScore
+      
 DISTANCE_CALCULATORS = {}
