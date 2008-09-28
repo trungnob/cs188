@@ -246,8 +246,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           else :
               listStuff=[self.Expectimax_Value(numOfAgent,(agentIndex+1)%numOfAgent,nextState,depth-1) for nextState in listNextStates]
               return sum(listStuff)/len(listStuff)
- 
-    
+
   def getAction(self, gameState):
     """
       Returns the expectimax action using self.depth and self.evaluationFunction
@@ -281,33 +280,32 @@ def actualAStartDistance(gameState):
     from game import Directions
     from game import Actions
     visited = {}
+    startPosition = gameState.getPacmanPosition()
     fringe = util.FasterPriorityQueue()
     curDist = 0
-    fringe.push(gameState.getPacmanPosition(), curDist)
+    fringe.push(startPosition, curDist)
+    visited[startPosition] = True
     
+    walls    = gameState.getWalls()
     foodGrid = gameState.getFood()
-    Walls    = gameState.getWalls()
-    hasFood  = lambda (x, y): foodGrid[x][y]
+    isFood  = lambda (x, y): foodGrid[x][y]
     
     while not fringe.isEmpty():
-        print "%d" % curDist
         curState = fringe.pop()
         # if goal state is found return the distance
-        if (hasFood(curState) == True):
-            return curDist
-        successors = []
+        if (isFood(curState)):
+            #print "returned: %d" % curDist
+            return (curState, curDist)
+            break
         curDist = curDist + 1
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             x,y = curState
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
-            if not Walls[nextx][nexty]:
-                nextState = (nextx, nexty)
-                successors.append(nextState)
-        if curState not in visited:
-            visited[curState] = True
-            for nextState in successors:
-                fringe.push(nextState, curDist)
+            nextState = (nextx, nexty)
+            if ((not walls[nextx][nexty]) and (nextState not in visited)):
+                visited[nextState] = True
+                fringe.push(nextState, curDist)    
     return None
 
 def betterEvaluationFunction(currentGameState):
@@ -327,42 +325,25 @@ def betterEvaluationFunction(currentGameState):
           return 1e308          
       returnScore= 0.0
       newPos = currentGameState.getPacmanState().getPosition()
-      FoodList = currentGameState.getFood().asList()
-      GhostStates = currentGameState.getGhostStates() 
+      GhostStates = currentGameState.getGhostStates()
       GhostStates.sort(lambda x,y: disCmp(x.getPosition(),y.getPosition(),newPos))
-      GhostPositions=[Ghost.getPosition() for Ghost in GhostStates]
       newScaredTimes = [ghostState.scaredTimer for ghostState in GhostStates]
-      capsules=currentGameState.getCapsules();
-      distanceToCapsules=[util.manhattanDistance(newPos, x) for x in capsules]
-      wFood=2.0;
-      wGhost=-4.0;
-      wScaredGhost=4.0;
-      #foodList.sort(lambda x,y: util.manhattanDistance(newPos, x)-util.manhattanDistance(newPos, y))
-      foodDistances=[util.manhattanDistance(newPos, x) for x in FoodList]
-      #closestFoodDistance=min(foodDistances)
-      closestFoodDistance = actualAStartDistance(currentGameState)
-      #ghostDistances=[util.manhattanDistance(newPos, x) for x in GhostPositions]
-      #closestGhostDistance=min(ghostDistances)
+      targetFoodPosition, closestFoodDistance = actualAStartDistance(currentGameState)
       closestGhost=GhostStates[0]
-      closestGhostDistance=util.manhattanDistance(closestGhost.getPosition(), newPos)
-      
-      if closestGhostDistance>3:#Ghost too far ignore Ghost
-         wFood=2.0;
-         wGhost=-0.0;
-         if closestGhost.scaredTimer>3:
-            wScaredGhost=4;
+      closestGhostDistance=util.manhattanDistance(GhostStates[0].getPosition(), newPos)
+      wFood, wGhost, wScaredGhost       = [2.0, -4.0, 4.0];
+      if (closestGhostDistance > 3):#Ghost too far ignore Ghost
+         if (closestGhost.scaredTimer > 3):
+            wFood, wGhost, wScaredGhost = [2.0, -0.0, 4.0];
          else:
-            wScaredGhost=1;
+            wFood, wGhost, wScaredGhost = [2.0, -0.0, 1.0];
       else: 
-         wFood=1.0;
-         wGhost=-4.0;
-         wScaredGhost=4.0;
-      if closestGhost.scaredTimer>3:
-          returnScore=wFood/closestFoodDistance+wScaredGhost/closestGhostDistance+currentGameState.getScore()
+         wFood, wGhost, wScaredGhost    = [1.0, -4.0, 4.0];
+      if (closestGhost.scaredTimer > 3):
+          returnScore = wFood/closestFoodDistance+wScaredGhost/closestGhostDistance+currentGameState.getScore()
       else: 
           returnScore=wFood/closestFoodDistance+wGhost/closestGhostDistance+currentGameState.getScore()
       betterEvaluationFunction.firstCalled=False;
-      
       return returnScore
       
 DISTANCE_CALCULATORS = {}
