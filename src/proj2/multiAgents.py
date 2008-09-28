@@ -276,7 +276,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
     action=LegalActions[listMax[i]]
     return action
 
-def actualAStartDistance(gameState):
+def actualAStartDistance(gameState, ghostPositions):
     from game import Directions
     from game import Actions
     visited = {}
@@ -288,15 +288,21 @@ def actualAStartDistance(gameState):
     
     walls    = gameState.getWalls()
     foodGrid = gameState.getFood()
-    isFood  = lambda (x, y): foodGrid[x][y]
+    isFood   = lambda(x, y): foodGrid[x][y]
+    isGhost  = lambda(x, y): (x, y) in ghostPositions
+    
+    ghostInRange = False
     
     while not fringe.isEmpty():
         curState = fringe.pop()
         # if goal state is found return the distance
         if (isFood(curState)):
             #print "returned: %d" % curDist
-            return (curState, curDist)
+            return (curState, curDist, ghostInRange)
             break
+        # if you find a ghost before you find your closest food!! you are screwed =(
+        if (isGhost(curState)):
+            ghostInRange=True
         curDist = curDist + 1
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             x,y = curState
@@ -320,19 +326,23 @@ def betterEvaluationFunction(currentGameState):
           #use this to initialize any variable which you wish don't do this again and again
           print "betterEvaluationFunction is at first Called"
       if currentGameState.isLose():
-           return -1e308
+          return -1e308
       if currentGameState.isWin() : 
           return 1e308          
       returnScore= 0.0
       newPos = currentGameState.getPacmanState().getPosition()
       GhostStates = currentGameState.getGhostStates()
       GhostStates.sort(lambda x,y: disCmp(x.getPosition(),y.getPosition(),newPos))
+      GhostPositions = [Ghost.getPosition() for Ghost in GhostStates]
       newScaredTimes = [ghostState.scaredTimer for ghostState in GhostStates]
-      targetFoodPosition, closestFoodDistance = actualAStartDistance(currentGameState)
       closestGhost=GhostStates[0]
       closestGhostDistance=util.manhattanDistance(GhostStates[0].getPosition(), newPos)
+
+      targetFoodPosition, closestFoodDistance, ghostInRange = actualAStartDistance(currentGameState, GhostPositions)
+
       wFood, wGhost, wScaredGhost       = [2.0, -4.0, 4.0];
-      if (closestGhostDistance > 3):#Ghost too far ignore Ghost
+      #if (closestGhostDistance > 3):#Ghost too far ignore Ghost
+      if (not ghostInRange):
          if (closestGhost.scaredTimer > 3):
             wFood, wGhost, wScaredGhost = [2.0, -0.0, 4.0];
          else:
