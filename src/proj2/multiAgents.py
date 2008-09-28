@@ -302,7 +302,7 @@ def actualAStartDistance(gameState, ghostPositions):
             break
         # if you find a ghost before you find your closest food!! you are screwed =(
         if (isGhost(curState)):
-            ghostInRange=True
+            ghostInRange = True
         curDist = curDist + 1
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             x,y = curState
@@ -339,6 +339,15 @@ def betterEvaluationFunction(currentGameState):
       closestGhostDistance=util.manhattanDistance(GhostStates[0].getPosition(), newPos)
 
       targetFoodPosition, closestFoodDistance, ghostInRange = actualAStartDistance(currentGameState, GhostPositions)
+      
+      allX = []
+      allY = []
+      for position in GhostPositions:
+        x, y = position
+        allX=allX + [x]
+        allY=allY + [y]
+      numOfGhost = len(GhostPositions)
+      centerOfGhosts = (sum(allX)/numOfGhost, sum(allY)/numOfGhost)
 
       wFood, wGhost, wScaredGhost       = [2.0, -4.0, 4.0];
       #if (closestGhostDistance > 3):#Ghost too far ignore Ghost
@@ -347,8 +356,8 @@ def betterEvaluationFunction(currentGameState):
             wFood, wGhost, wScaredGhost = [2.0, -0.0, 4.0];
          else:
             wFood, wGhost, wScaredGhost = [2.0, -0.0, 1.0];
-      else: 
-         wFood, wGhost, wScaredGhost    = [1.0, -4.0, 4.0];
+      if (ghostInRange or util.manhattanDistance(centerOfGhosts, newPos) < 4): 
+         wFood, wGhost, wScaredGhost    = [1.5, -4.0, 4.0];
       if (closestGhost.scaredTimer > 3):
           returnScore = wFood/closestFoodDistance+wScaredGhost/closestGhostDistance+currentGameState.getScore()
       else: 
