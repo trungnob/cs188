@@ -313,7 +313,7 @@ def actualGhostDistance(gameState, ghostPosition):
             nextState = (nextx, nexty)
             if ((not walls[nextx][nexty]) and (nextState not in visited)):
                 newcurDist = curDist + 1
-                priorityVal=util.manhattanDistance(curState,ghostPosition)+newcurDist
+                priorityVal=util.manhattanDistance(nextState,ghostPosition)+newcurDist
                 visited[nextState] = True
                 fringe.push(tuple((nextState,newcurDist)), priorityVal)    
     return (curState,curDist)
@@ -351,7 +351,7 @@ def actualFoodDistance(gameState, targetFood):
             if ((not walls[nextx][nexty]) and (nextState not in visited)):
                 
                 newcurDist = curDist + 1
-                priorityVal=util.manhattanDistance(curState,targetFood)+newcurDist
+                priorityVal=util.manhattanDistance(nextState,targetFood)+newcurDist
                 visited[nextState] = True
                 fringe.push(tuple((nextState,newcurDist)), priorityVal)    
     return (curState,curDist)
