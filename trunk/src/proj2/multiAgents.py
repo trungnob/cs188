@@ -461,7 +461,13 @@ def betterEvaluationFunction(currentGameState):
       if (closestNormalGhostDist > 2):
         if closestScaredGhost!=None:
           if (closestScaredGhostDist<closestScaredGhost.scaredTimer):
+            if(closestScaredGhostDist<5):
               wFood, wGhost, wScaredGhost= [0.0, -0.0, 100];
+            else:
+              if(closestScaredGhostDist<10):
+                wFood, wGhost, wScaredGhost= [3, 0, 50]; 
+              else :
+                wFood, wGhost, wScaredGhost= [3, 0, 0];    
           else:
                wFood, wGhost, wScaredGhost = [4.0, -0.0, 0.0];
         else :
