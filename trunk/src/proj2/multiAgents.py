@@ -469,7 +469,7 @@ def betterEvaluationFunction(currentGameState):
          if len(FoodList) < 2:
              wFood, wGhost, wScaredGhost= [10.0, -8.0, 0.0];
                
-      returnScore=betterEvaluationFunction.NumOriginal/(len(FoodList)+1)-len(FoodList)+(wFood/(closestFoodDistance)+(wGhost)/closestNormalGhostDist+(wScaredGhost)/(closestScaredGhostDist))+currentGameState.getScore()
+      returnScore=(wFood/(closestFoodDistance)+(wGhost)/closestNormalGhostDist+(wScaredGhost)/(closestScaredGhostDist))+currentGameState.getScore()
       betterEvaluationFunction.firstCalled=False;
       return returnScore
 
