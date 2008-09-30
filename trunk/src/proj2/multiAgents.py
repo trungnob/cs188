@@ -420,9 +420,9 @@ def betterEvaluationFunction(currentGameState):
           closestNormalGhostDist=min(allDistNormalGhosts)
           closestNormalGhost=allNormalGhost[allDistNormalGhosts.index(closestNormalGhostDist)]
       
-      
-
       wFood, wGhost, wScaredGhost       = [2.0, -6.0, 4.0];
+      
+      #A bunch of Policies to compare the states
       if (closestNormalGhostDist==0):
           return -1e307
       if (closestScaredGhostDist==0):
@@ -450,19 +450,7 @@ def betterEvaluationFunction(currentGameState):
           else:
               wFood, wGhost, wScaredGhost= [1.0, -6.0, 1.0];     
       
-#      somenumber2=float(betterEvaluationFunction.NumOrginal)
-#      somenumber1=float(somenumber2/(len(FoodList)+1))
-#      somenumber=somenumber1/DistanceToCenterFood       
-#      if closestFoodDistance >10: 
-#        SomeWeight=somenumber;      
-#      else:
-#        SomeWeight=somenumber/betterEvaluationFunction.NumOrginal/100;
-     
-#      if (closestFoodDistance==1):
-#          if (closestNormalGhostDist > 2):
-#            wFood, wGhost, wScaredGhost= [100.0, 0.0, 0.0];
-#          else:  
-#            wFood, wGhost, wScaredGhost= [100.0, -100.0, 0.0];  
+
       if len(FoodList) < 3   :
           wFood, wGhost, wScaredGhost= [6.0, -8.0, 0.0];
       else: 
