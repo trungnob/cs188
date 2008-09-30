@@ -33,9 +33,9 @@ class ReflexAgent(Agent):
     chosenIndex = random.choice(bestIndices)
     
     "Add more of your code here if you want to"
-    print(chosenIndex)
-    print(legalMoves)
-    print(legalMoves[chosenIndex])
+#    print(chosenIndex)
+#    print(legalMoves)
+#    print(legalMoves[chosenIndex])
     return legalMoves[chosenIndex]
   
   def evaluationFunction(self, currentGameState, action):
@@ -68,12 +68,12 @@ class ReflexAgent(Agent):
             GhostScore=2*-1.0/util.manhattanDistance(newPos, GhostPositions[0])
     if foodScore==0: returnScore=2.0+GhostScore
     else: returnScore=GhostScore+1.0/float(foodScore)
-    print('GhostScore')
-    print(GhostScore)
-    print('FoodScore')
-    print(foodScore)
-    print('ReturnScore:')
-    print(returnScore)
+#    print('GhostScore')
+#    print(GhostScore)
+#    print('FoodScore')
+#    print(foodScore)
+#    print('ReturnScore:')
+#    print(returnScore)
     return returnScore
 def disCmp(x,y,newPos):
     if (util.manhattanDistance(newPos, x)-util.manhattanDistance(newPos, y))<0: return -1
@@ -119,7 +119,7 @@ class MultiAgentSearchAgent(Agent):
     """
       This is a hook for feeding in command line argument -b or --betterEvaluation
     """
-    print("I was here")
+    betterEvaluationFunction.NumOriginal=0;
     betterEvaluationFunction.firstCalled=True;
     self.evaluationFunction = betterEvaluationFunction
     
@@ -149,9 +149,9 @@ class MinimaxAgent(MultiAgentSearchAgent):
              listMax.append(i)
     i = random.randint(0,len(listMax)-1)
     
-    print(LegalActions)
-    print(v)
-    print(listMax)
+#    print(LegalActions)
+#    print(v)
+#    print(listMax)
     action=LegalActions[listMax[i]]
     return action
 
@@ -173,6 +173,9 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
   def Alpha_Beta_Value(self, numOfAgent, agentIndex, gameState, depth, alpha, beta):
       LegalActions=gameState.getLegalActions(agentIndex)
+      if (agentIndex==0): 
+         if Directions.STOP in LegalActions: 
+             LegalActions.remove(Directions.STOP)
       listNextStates=[gameState.generateSuccessor(agentIndex,action) for action in LegalActions ]
       
       # terminal test      
@@ -193,7 +196,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
               v=1e308
               for nextState in listNextStates:
                   v = min(self.Alpha_Beta_Value(numOfAgent, (agentIndex+1)%numOfAgent, nextState, depth-1, alpha, beta), v)
-                  if (v <= alpha):
+                  if (v <=  alpha):
                       return v
                   beta = min(beta, v)
               return v
@@ -217,7 +220,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     # print(self.Alpha_Beta_Value(numOfAgent,0,gameState,trueDepth))
     
     # as long as beta is above the upper bound of the eval function
-    v = [self.Alpha_Beta_Value(numOfAgent,1,nextGameState,trueDepth-1, -1e308, 1e308) for nextGameState in listNextStates] 
+    v = [self.Alpha_Beta_Value(numOfAgent,1,nextGameState,trueDepth-1, -1e307, 1e307) for nextGameState in listNextStates] 
     MaxV=max(v)
     listMax=[]
     for i in range(0,len(v)):
@@ -246,8 +249,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           else :
               listStuff=[self.Expectimax_Value(numOfAgent,(agentIndex+1)%numOfAgent,nextState,depth-1) for nextState in listNextStates]
               return sum(listStuff)/len(listStuff)
- 
-    
+
   def getAction(self, gameState):
     """
       Returns the expectimax action using self.depth and self.evaluationFunction
@@ -271,11 +273,88 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
              listMax.append(i)
     i = random.randint(0,len(listMax)-1)
     
-    print(LegalActions)
-    print(v)
-    print(listMax)
+#    print(LegalActions)
+#    print(v)
+#    print(listMax)
     action=LegalActions[listMax[i]]
     return action
+
+def actualGhostDistance(gameState, ghostPosition):
+    from game import Directions
+    from game import Actions
+    visited = {}
+    ghostPosition=util.nearestPoint(ghostPosition)
+    curState=startPosition = gameState.getPacmanPosition()
+    fringe = util.FasterPriorityQueue()
+    Hvalue=util.manhattanDistance(startPosition,ghostPosition)
+    curDist=0;
+    priorityVal=Hvalue+curDist
+    fringe.push(tuple((startPosition,curDist)), priorityVal)
+    visited[startPosition] = True
+    walls    = gameState.getWalls()
+    foodGrid = gameState.getFood()
+    isFood   = lambda(x, y): foodGrid[x][y]
+    #isGhost  = lambda(x, y): (x, y) in ghostPositions
+    while not fringe.isEmpty():
+        curState,curDist = fringe.pop()
+        # if goal state is found return the distance
+        if (curState==ghostPosition):
+            #print "returned: %d" % curDist
+            return (curState, curDist)
+            break
+        # if you find a ghost before you find your closest food!! you are screwed =(
+        #if (isGhost(curState)):
+        #    ghostInRange = True
+      
+        for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
+            x,y = curState
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            nextState = (nextx, nexty)
+            if ((not walls[nextx][nexty]) and (nextState not in visited)):
+                newcurDist = curDist + 1
+                priorityVal=util.manhattanDistance(nextState,ghostPosition)+newcurDist
+                visited[nextState] = True
+                fringe.push(tuple((nextState,newcurDist)), priorityVal)    
+    return (curState,curDist)
+def actualFoodDistance(gameState, targetFood):
+    from game import Directions
+    from game import Actions
+    visited = {}
+    curState=startPosition = gameState.getPacmanPosition()
+    fringe = util.FasterPriorityQueue()
+    Hvalue=util.manhattanDistance(startPosition,targetFood)
+    curDist=0;
+    priorityVal=Hvalue+curDist
+    fringe.push(tuple((startPosition,curDist)), priorityVal)
+    visited[startPosition] = True
+    walls    = gameState.getWalls()
+    foodGrid = gameState.getFood()
+    isFood   = lambda(x, y): foodGrid[x][y]
+    #isGhost  = lambda(x, y): (x, y) in ghostPositions
+    while not fringe.isEmpty():
+        curState,curDist = fringe.pop()
+        # if goal state is found return the distance
+        if (curState==targetFood):
+            #print "returned: %d" % curDist
+            return (curState, curDist)
+            break
+        # if you find a ghost before you find your closest food!! you are screwed =(
+        #if (isGhost(curState)):
+        #    ghostInRange = True
+      
+        for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
+            x,y = curState
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            nextState = (nextx, nexty)
+            if ((not walls[nextx][nexty]) and (nextState not in visited)):
+                
+                newcurDist = curDist + 1
+                priorityVal=util.manhattanDistance(nextState,targetFood)+newcurDist
+                visited[nextState] = True
+                fringe.push(tuple((nextState,newcurDist)), priorityVal)    
+    return (curState,curDist)
 
 def betterEvaluationFunction(currentGameState):
       """
@@ -287,47 +366,108 @@ def betterEvaluationFunction(currentGameState):
       if (betterEvaluationFunction.firstCalled): 
           #This indicates the function whether first called or not
           #use this to initialize any variable which you wish don't do this again and again
+          betterEvaluationFunction.NumOrginal=currentGameState.getFood().count()
           print "betterEvaluationFunction is at first Called"
       if currentGameState.isLose():
-           return -1e308
+          return -1e307
       if currentGameState.isWin() : 
-          return 1e308          
+          return 1e307         
       returnScore= 0.0
       newPos = currentGameState.getPacmanState().getPosition()
-      FoodList = currentGameState.getFood().asList()
-      GhostStates = currentGameState.getGhostStates() 
+      GhostStates = currentGameState.getGhostStates()
       GhostStates.sort(lambda x,y: disCmp(x.getPosition(),y.getPosition(),newPos))
-      GhostPositions=[Ghost.getPosition() for Ghost in GhostStates]
+      GhostPositions = [Ghost.getPosition() for Ghost in GhostStates]
       newScaredTimes = [ghostState.scaredTimer for ghostState in GhostStates]
-      capsules=currentGameState.getCapsules();
-      distanceToCapsules=[util.manhattanDistance(newPos, x) for x in capsules]
-      wFood=2.0;
-      wGhost=-4.0;
-      wScaredGhost=4.0;
-      #foodList.sort(lambda x,y: util.manhattanDistance(newPos, x)-util.manhattanDistance(newPos, y))
-      foodDistances=[util.manhattanDistance(newPos, x) for x in FoodList]
-      closestFoodDistance=min(foodDistances)
-      #ghostDistances=[util.manhattanDistance(newPos, x) for x in GhostPositions]
-      #closestGhostDistance=min(ghostDistances)
       closestGhost=GhostStates[0]
-      closestGhostDistance=util.manhattanDistance(closestGhost.getPosition(), newPos)
+      FoodList = currentGameState.getFood().asList()
+      minPos = FoodList[0]
+      minDist = util.manhattanDistance(minPos, newPos)
+      for food in FoodList:
+         curDist = util.manhattanDistance(food, newPos)
+         if curDist==1 : 
+             minPos=food
+             minDist=curDist
+             break
+         if (curDist < minDist):
+             minDist = curDist
+             minPos = food
+#      SumX=0.0
+#      SumY=0.0
+#      for food in FoodList:
+#         SumX+=food[0]
+#         SumY+=food[1]
+#      if len(FoodList)!=0:   
+#        Xc=SumX/len(FoodList)
+#        Yc=SumY/len(FoodList)
+               
+      targetFoodPosition, closestFoodDistance = actualFoodDistance(currentGameState, minPos)
+#      DistanceToCenterFood=util.manhattanDistance((Xc,Yc), newPos)
+      closestScaredGhostDist=1e307
+      closestScaredGhost=None
+      closestNormalGhostDist=1e307
+      closestNormalGhost=None
+      allScaredGhost=[Ghost for Ghost in GhostStates if Ghost.scaredTimer>0]
+      allRealScaredGhostDistance=[actualGhostDistance(currentGameState,Pos) for Pos in [ScaredGhost.getPosition() for ScaredGhost in allScaredGhost]]
+      allDistScaredGhosts=[Ghost[1] for Ghost in allRealScaredGhostDistance]
+      if len(allDistScaredGhosts)!=0:
+          closestScaredGhostDist=min(allDistScaredGhosts)
+          closestScaredGhost=allScaredGhost[allDistScaredGhosts.index(closestScaredGhostDist)]
       
-      if closestGhostDistance>3:#Ghost too far ignore Ghost
-         wFood=2.0;
-         wGhost=-0.0;
-         if closestGhost.scaredTimer>3:
-            wScaredGhost=4;
-         else:
-            wScaredGhost=1;
+      allNormalGhost=[Ghost for Ghost in GhostStates if Ghost.scaredTimer<=0]
+      allRealNormalGhostDistance=[actualGhostDistance(currentGameState,Pos) for Pos in [NormalGhost.getPosition() for NormalGhost in allNormalGhost]]
+      allDistNormalGhosts=[Ghost[1] for Ghost in allRealNormalGhostDistance]
+      if len(allDistNormalGhosts)!=0:
+          closestNormalGhostDist=min(allDistNormalGhosts)
+          closestNormalGhost=allNormalGhost[allDistNormalGhosts.index(closestNormalGhostDist)]
+      
+      wFood, wGhost, wScaredGhost       = [2.0, -6.0, 4.0];
+      
+      #A bunch of Policies to compare the states
+      if (closestNormalGhostDist==0):
+          return -1e307
+      if (closestScaredGhostDist==0):
+          closestScaredGhostDist=0.1
+      if (closestNormalGhostDist > 2):
+        if closestScaredGhost!=None:
+          if (closestScaredGhostDist<closestScaredGhost.scaredTimer):
+            if(closestScaredGhostDist<7):
+              wFood, wGhost, wScaredGhost= [0.0, -0.0,10.0];
+            else:
+              if(closestScaredGhostDist<12):
+                wFood, wGhost, wScaredGhost= [3.0, 0.0, 8.0]; 
+              else :
+                wFood, wGhost, wScaredGhost= [3.0, 0.0, 0.0];    
+          else:
+               wFood, wGhost, wScaredGhost = [4.0, -0.0, 0.0];
+        else :
+               wFood, wGhost, wScaredGhost = [4.0, -0.0, 0.0];     
+      else:
+          if (closestScaredGhostDist<5):
+              if (closestScaredGhost.scaredTimer>5):
+               wFood, wGhost, wScaredGhost= [1.0, -6.0, 4.0];
+              else:
+               wFood, wGhost, wScaredGhost= [1.0, -6.0, -3.0]; 
+          else:
+              wFood, wGhost, wScaredGhost= [1.0, -6.0, 1.0];     
+      
+
+      if len(FoodList) < 3   :
+          wFood, wGhost, wScaredGhost= [6.0, -8.0, 0.0];
       else: 
-         wFood=1.0;
-         wGhost=-4.0;
-         wScaredGhost=4.0;
-      if closestGhost.scaredTimer>3:
-          returnScore=wFood/closestFoodDistance+wScaredGhost/closestGhostDistance+currentGameState.getScore()
-      else: 
-          returnScore=wFood/closestFoodDistance+wGhost/closestGhostDistance+currentGameState.getScore()
+         if len(FoodList) < 2:
+             wFood, wGhost, wScaredGhost= [10.0, -8.0, 0.0];
+               
+      returnScore=(wFood/(closestFoodDistance)+(wGhost)/closestNormalGhostDist+(wScaredGhost)/(closestScaredGhostDist))+currentGameState.getScore()
       betterEvaluationFunction.firstCalled=False;
-      
       return returnScore
+
+def allCombo(myList):
+    all = []
+    if len(myList) == 0:
+        return []
+    head = myList.pop()
+    for i in myList:
+        all = all + [(head, i)]
+    return all + allCombo(myList)
+
 DISTANCE_CALCULATORS = {}
