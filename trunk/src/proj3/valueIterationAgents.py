@@ -26,8 +26,11 @@ class ValueIterationAgent(AbstractValueEstimationAgent):
     self.mdp = mdp
     self.discount = discount
     self.iterations = iterations
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    self.myV=util.Counter();
+#    for state in mdp.getStates():
+#        self.myVector[state]=0
+    
+#    util.raiseNotDefined()
     
   def getValue(self, state):
     """
@@ -35,7 +38,13 @@ class ValueIterationAgent(AbstractValueEstimationAgent):
       (after the indicated number of value iteration passes).      
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    listOfState=self.mdp.getStates()
+#    for eacState in listOfState :
+#    print self.mdp.getTransitionStatesAndProbs()    
+    print self.mdp.getPossibleActions(state)
+    print self.mdp.getStartState()
+    return 0;
+#    util.raiseNotDefined()
 
 
   def getQValue(self, state, action):
@@ -47,7 +56,15 @@ class ValueIterationAgent(AbstractValueEstimationAgent):
       to derive it on the fly.
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    print self.discount
+    print self.gamma
+    listOfState=self.mdp.getStates()
+    listOfStateandProbs=self.mdp.getTransitionStatesAndProbs(state,action) 
+    sumTmp=0 
+    for eachStateandProbs in listOfStateandProbs:
+        nextState,tValue=eachStateandProbs
+        sumTmp+=tValue*(self.mdp.getReward(state,action,nextState)+self.discount*self.myV[state])
+#    util.raiseNotDefined()
 
   def getPolicy(self, state):
     """
@@ -59,7 +76,12 @@ class ValueIterationAgent(AbstractValueEstimationAgent):
       for display purposes & in the getAction method below.
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    print self.mdp.getStates()
+    listActions=self.mdp.getPossibleActions(state)
+    for eachAction in listActions:
+        print self.mdp.getTransitionStatesAndProbs(state,eachAction) 
+    return 0;
+#    util.raiseNotDefined()
 
   def getAction(self, state):
     """
