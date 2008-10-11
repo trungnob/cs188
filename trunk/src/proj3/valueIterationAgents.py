@@ -11,6 +11,21 @@ class ValueIterationAgent(AbstractValueEstimationAgent):
       for a given number of iterations as well as a discount 
       value.
   """
+#  def bellmanUpdate(self):
+#    listOfState=self.mdp.getStates()
+#    for i in range(0,self.iterations):
+#        listValue=list()
+#        for state in listOfState:
+#            listOfActions=self.mdp.MarkovDecisionProcess.getPossibleActions(state)
+#            for eachAction in listOfActions:
+#                listOfNT_T=self.mdp.getTransitionStatesAndProbs(state,eachAction)
+#                tempSum=0
+#                for eachNT_T in listofNT_T:
+#                    nextState,T=eachNT_T
+#                    R=self.mdp.MarkovDecisionProcess.getReward(state, eachAction, nextState)
+#                    tempSum+=T*(R+self.discount*self.oldV.getCount(nextState)) 
+#                listValue.append(tempSum)
+#                self.newV.setCount(state,max(listValue)) 
   def __init__(self, mdp, discount = 0.9, iterations = 100):
     """
       Your value iteration agent should take an mdp on
@@ -26,24 +41,43 @@ class ValueIterationAgent(AbstractValueEstimationAgent):
     self.mdp = mdp
     self.discount = discount
     self.iterations = iterations
-    self.myV=util.Counter();
-#    for state in mdp.getStates():
-#        self.myVector[state]=0
+    print iterations
+    self.oldV=util.Counter()
+    self.newV=util.Counter()
+# Bellman Update procedure: 
+    listOfState=self.mdp.getStates()
+    for i in range(0,self.iterations):
+        for state in listOfState:
+            listValue=list()
+            listOfActions=self.mdp.getPossibleActions(state)
+            for eachAction in listOfActions:
+                listOfNT_T=self.mdp.getTransitionStatesAndProbs(state,eachAction)
+                tempSum=0
+                for eachNT_T in listOfNT_T:
+                    nextState,T=eachNT_T
+                    R=self.mdp.getReward(state, eachAction, nextState)
+                    tempSum+=T*(R+self.discount*self.oldV.getCount(nextState)) 
+                listValue.append(tempSum)
+                self.newV.setCount(state,max(listValue))
+        #update Vector of Value         
+        newKeys=self.newV.keys()
+        for k in newKeys:
+            newValue=self.newV.getCount(k)
+            self.oldV.setCount(k, newValue)
+        
+        
     
-#    util.raiseNotDefined()
-    
+  
   def getValue(self, state):
     """
       Return the value of the state 
       (after the indicated number of value iteration passes).      
     """
     "*** YOUR CODE HERE ***"
-    listOfState=self.mdp.getStates()
+    
 #    for eacState in listOfState :
 #    print self.mdp.getTransitionStatesAndProbs()    
-    print self.mdp.getPossibleActions(state)
-    print self.mdp.getStartState()
-    return 0;
+    return self.oldV.getCount(state)
 #    util.raiseNotDefined()
 
 
@@ -56,16 +90,13 @@ class ValueIterationAgent(AbstractValueEstimationAgent):
       to derive it on the fly.
     """
     "*** YOUR CODE HERE ***"
-    print self.discount
-    print self.gamma
-    listOfState=self.mdp.getStates()
+  
     listOfStateandProbs=self.mdp.getTransitionStatesAndProbs(state,action) 
     sumTmp=0 
     for eachStateandProbs in listOfStateandProbs:
         nextState,tValue=eachStateandProbs
-        sumTmp+=tValue*(self.mdp.getReward(state,action,nextState)+self.discount*self.myV[state])
-#    util.raiseNotDefined()
-
+        sumTmp+=tValue*(self.mdp.getReward(state,action,nextState)+self.discount*self.getValue(nextState))
+    return sumTmp
   def getPolicy(self, state):
     """
       Look up the policy's recommendation for the state
@@ -76,11 +107,14 @@ class ValueIterationAgent(AbstractValueEstimationAgent):
       for display purposes & in the getAction method below.
     """
     "*** YOUR CODE HERE ***"
-    print self.mdp.getStates()
-    listActions=self.mdp.getPossibleActions(state)
-    for eachAction in listActions:
-        print self.mdp.getTransitionStatesAndProbs(state,eachAction) 
-    return 0;
+    listOfActions=self.mdp.getPossibleActions(state)
+    listQ=list()
+    if self.mdp.isTerminal(state): return None
+    for eachAction in listOfActions:
+         listQ.append(self.getQValue(state, eachAction))
+    maxIndex=listQ.index(max(listQ))
+    return listOfActions[maxIndex]      
+         
 #    util.raiseNotDefined()
 
   def getAction(self, state):
