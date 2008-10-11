@@ -7,11 +7,11 @@
 ########################
 
 def question2():
-  YOUR_ANSWER = None
+  YOUR_ANSWER = 7
   return YOUR_ANSWER
 
 def question3():
-  YOUR_ANSWER = None
+  YOUR_ANSWER = (0.9,0.014)
   return YOUR_ANSWER
   
 def question4a():
