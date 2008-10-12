@@ -30,10 +30,10 @@ class QLearningAgent(AbstractReinforcementAgent):
        You might want to initialize     
        Q-values here...
     """    
-    AbstractReinforcementAgent.__init__(self, actionFn)    
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
-  
+    AbstractReinforcementAgent.__init__(self, actionFn)
+    #Create Vector Value for Q learning 
+    self.myV=util.Counter()    
+      
   def getQValue(self, state, action):
     """
       Returns Q(state,action)    
@@ -41,7 +41,8 @@ class QLearningAgent(AbstractReinforcementAgent):
       a state or (state,action) tuple 
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return self.myV.getCount((state,action))
+    
   
     
   def getValue(self, state):
@@ -50,15 +51,18 @@ class QLearningAgent(AbstractReinforcementAgent):
       where is max is over legal actions
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
-    
+    listofAction=self.getLegalActions(state)
+    listofQValue=[self.myV.getCount((state,eachAction)) for eachAction in listofAction ]
+    return max(listofQvalue)
   def getPolicy(self, state):
     """
     What is the best action to take in a state
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
-    
+    listofAction=self.getLegalActions(state)
+    listofQvalue=[self.myV.getCount((state,eachAction)) for eachAction in listofAction ]
+    maxIndex=listofQvalue.index(max(listofQvalue))
+    return listofAction[maxIndex]
   def getAction(self, state):
     """
       What action to take in the current state. With
@@ -73,15 +77,17 @@ class QLearningAgent(AbstractReinforcementAgent):
       here..... (see util.py)
     """  
     # Pick Action
+    import random
     action = None
     epsilon = self.epsilon
     take_random_action = util.flipCoin(epsilon)
     list_of_actions = self.getLegalActions(state)
     if take_random_action:
-        action = choice(list_of_actions)
+        i = random.randint(0,len(list_of_actions)-1)
+        action = list_of_actions[i]
     else:
         action = self.getPolicy(state)
-    return action
+#    return action
         
     
     "*** YOUR CODE HERE ***"
@@ -98,8 +104,18 @@ class QLearningAgent(AbstractReinforcementAgent):
       NOTE: You should never call this function,
       it will be called on your behalf
     """
+    listNextAction=self.getLegalActions(nextState)
+    
+    listQnextSA=[self.myV.getCount((nextState,eachNextAction)) for eachNextAction in listNextAction ]
+    if len(listQnextSA)==0:
+        sample = reward 
+    else:
+        sample=reward+self.gamma*max(listQnextSA)
+    valueUpdate=(1.0-self.alpha)*self.myV.getCount((state,action))+self.alpha*sample
+    self.myV.setCount((state,action), valueUpdate)
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    
+    
     
 class ApproximateQLearningAgent(QLearningAgent):
   """
