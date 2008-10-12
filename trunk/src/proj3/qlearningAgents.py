@@ -53,7 +53,10 @@ class QLearningAgent(AbstractReinforcementAgent):
     "*** YOUR CODE HERE ***"
     listofAction=self.getLegalActions(state)
     listofQValue=[self.myV.getCount((state,eachAction)) for eachAction in listofAction ]
-    return max(listofQvalue)
+    if len(listofQValue)==0:
+        return 0;
+    else:
+        return max(listofQValue)
   def getPolicy(self, state):
     """
     What is the best action to take in a state
@@ -61,6 +64,8 @@ class QLearningAgent(AbstractReinforcementAgent):
     "*** YOUR CODE HERE ***"
     listofAction=self.getLegalActions(state)
     listofQvalue=[self.myV.getCount((state,eachAction)) for eachAction in listofAction ]
+    if len(listofQvalue)==0:
+         return None
     maxIndex=listofQvalue.index(max(listofQvalue))
     return listofAction[maxIndex]
   def getAction(self, state):
@@ -77,14 +82,14 @@ class QLearningAgent(AbstractReinforcementAgent):
       here..... (see util.py)
     """  
     # Pick Action
-    import random
+    
     action = None
     epsilon = self.epsilon
     take_random_action = util.flipCoin(epsilon)
     list_of_actions = self.getLegalActions(state)
     if take_random_action:
-        i = random.randint(0,len(list_of_actions)-1)
-        action = list_of_actions[i]
+        
+        action = random.choice(list_of_actions)
     else:
         action = self.getPolicy(state)
 #    return action
