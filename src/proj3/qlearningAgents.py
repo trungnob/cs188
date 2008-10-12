@@ -74,6 +74,16 @@ class QLearningAgent(AbstractReinforcementAgent):
     """  
     # Pick Action
     action = None
+    epsilon = self.epsilon
+    take_random_action = util.flipCoin(epsilon)
+    list_of_actions = self.getLegalActions(state)
+    if take_random_action:
+        action = choice(list_of_actions)
+    else:
+        action = self.getPolicy(state)
+    return action
+        
+    
     "*** YOUR CODE HERE ***"
     # Need to inform parent of action for Pacman
     self.doAction(state,action)    
