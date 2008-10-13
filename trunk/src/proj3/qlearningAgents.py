@@ -141,7 +141,7 @@ class ApproximateQLearningAgent(QLearningAgent):
     "*** YOUR CODE HERE ***"
     #Create Vector Value for Q learning
     self.weight = util.Counter()
-    self.featureVector = featExtractorType.getFeatures()
+    self.featureVector = self.featExtractor.getFeatures(None, None)
     
   def getQValue(self, state, action):
     """
@@ -149,7 +149,7 @@ class ApproximateQLearningAgent(QLearningAgent):
       where * is the dotProduct operator
     """
     "*** YOUR CODE HERE ***"
-    qVal = util.__mul__(self.weight.getCount((state, action)), self.featureVector.getCount((state, action)))
+    qVal = self.weight.__mul__(self.featExtractor.getFeatures(state, action))
     return qVal
     
   def update(self, state, action, nextState, reward):
@@ -160,10 +160,10 @@ class ApproximateQLearningAgent(QLearningAgent):
     listNextAction=self.getLegalActions(nextState)
     listQnextSA=[self.myV.getCount((nextState,eachNextAction)) for eachNextAction in listNextAction]
     if len(listQnextSA)==0:
-        correction = reward - getQValue(state, action)
+        correction = reward - self.getQValue(state, action)
     else:
-        correction = (reward + self.gamma*max(listQnextSA)) - getQValue(state, action)
-    self.weight.setCount((state, action), self.weight.getCount((state, action)) + self.alpha*correction*self.featureVector.getCount((state, action)))
+        correction = (reward + self.gamma*max(listQnextSA)) - self.getQValue(state, action)
+    self.weight.setCount((state, action), self.weight.getCount((state, action)) + self.alpha*correction*self.featExtractor.getFeatures(state, action))
 
 class PacmanQLearningAgent(QLearningAgent):
   def __init__(self):    
