@@ -140,7 +140,7 @@ class ApproximateQLearningAgent(QLearningAgent):
     self.featExtractor = featExtractorType()
     "*** YOUR CODE HERE ***"
     #Create Vector Value for Q learning
-    self.weight = featExtractorType.getFeatures()
+    self.weight = util.Counter()
     self.featureVector = featExtractorType.getFeatures()
     
   def getQValue(self, state, action):
