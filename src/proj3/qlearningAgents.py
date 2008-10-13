@@ -139,7 +139,9 @@ class ApproximateQLearningAgent(QLearningAgent):
       featExtractorType = IdentityFeatureExtractor
     self.featExtractor = featExtractorType()
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    #Create Vector Value for Q learning
+    self.weight = featExtractorType.getFeatures()
+    self.featureVector = featExtractorType.getFeatures()
     
   def getQValue(self, state, action):
     """
@@ -147,14 +149,21 @@ class ApproximateQLearningAgent(QLearningAgent):
       where * is the dotProduct operator
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    qVal = util.__mul__(self.weight.getCount((state, action)), self.featureVector.getCount((state, action)))
+    return qVal
     
   def update(self, state, action, nextState, reward):
     """
        Should update your weights based on transition  
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    listNextAction=self.getLegalActions(nextState)
+    listQnextSA=[self.myV.getCount((nextState,eachNextAction)) for eachNextAction in listNextAction]
+    if len(listQnextSA)==0:
+        correction = reward - getQValue(state, action)
+    else:
+        correction = (reward + self.gamma*max(listQnextSA)) - getQValue(state, action)
+    self.weight.setCount((state, action), self.weight.getCount((state, action)) + self.alpha*correction*self.featureVector.getCount((state, action)))
 
 class PacmanQLearningAgent(QLearningAgent):
   def __init__(self):    
