@@ -147,8 +147,12 @@ class ApproximateQLearningAgent(QLearningAgent):
     "*** YOUR CODE HERE ***"
     qVal = 0
     featureVector = self.featExtractor.getFeatures(state, action)
+    print "start of this section"
     for key in featureVector:
-        qVal += self.weight.getCount(key) * featureVector[key]
+        print "%d" % self.weight.getCount((state, action, key))
+    print "end of this section"
+    for key in featureVector:
+        qVal += self.weight.getCount((state, action, key)) * featureVector[key]
     return qVal
     
   def update(self, state, action, nextState, reward):
@@ -166,8 +170,10 @@ class ApproximateQLearningAgent(QLearningAgent):
     else:
         correction = (reward + self.gamma*max(listQnextSA)) - self.getQValue(state, action)
     # ----- generic ------
+    print "correction: %d" % correction
     for key in featureVector:
-        self.weight.setCount(key, self.weight.getCount(key) + self.alpha*correction*featureVector[key])
+        self.weight.setCount((state, action, key), self.weight.getCount((state, action, key)) + self.alpha*correction*featureVector[key])
+        print "fValue: %d" % featureVector[key]
 
 class PacmanQLearningAgent(QLearningAgent):
   def __init__(self):    
