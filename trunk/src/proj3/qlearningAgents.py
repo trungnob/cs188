@@ -157,15 +157,17 @@ class ApproximateQLearningAgent(QLearningAgent):
     """
     "*** YOUR CODE HERE ***"
     listNextAction=self.getLegalActions(nextState)
-    listQnextSA=[self.myV.getCount((nextState,eachNextAction)) for eachNextAction in listNextAction]
+    #listVnextSA=[self.getValue(state) for eachNextAction in listNextAction]
+    listQnextSA=[self.getQValue(nextState, eachNextAction) for eachNextAction in listNextAction]
     if len(listQnextSA)==0:
-        sample = reward
+    #    sample = reward
         correction = reward - self.getQValue(state, action)
     else:
-        sample=reward+self.gamma*max(listQnextSA)
-        correction = (reward + self.gamma*max(listQnextSA)) - self.getQValue(state, action)
-    valueUpdate=(1.0-self.alpha)*self.myV.getCount((state,action))+self.alpha*sample
-    self.myV.setCount((state,action), valueUpdate)
+    #    sample=reward+self.gamma*max(listQnextSA)
+    #    correction = (reward + self.gamma*max(listQnextSA)) - self.getQValue(state, action)
+        correction = (reward + self.gamma*self.getValue(state)) - self.getQValue(state, action)
+    #valueUpdate=(1.0-self.alpha)*self.myV.getCount((state,action))+self.alpha*sample
+    #self.myV.setCount((state,action), valueUpdate)
     featureVector = self.featExtractor.getFeatures(state, action)
     for key in featureVector:
         self.weight.setCount((state, action, key), self.weight.getCount((state, action, key)) + self.alpha*correction*featureVector[key])
