@@ -165,7 +165,7 @@ class ApproximateQLearningAgent(QLearningAgent):
         correction = reward - self.getQValue(state, action)
     else:
         correction = (reward + self.gamma*max(listQnextSA)) - self.getQValue(state, action)
-    self.weight.setCount((state, action), self.weight.getCount((state, action)) + self.alpha*correction)#*featureVector[(str(state), action)]
+    self.weight.setCount((state, action), self.weight.getCount((state, action)) + self.alpha*correction*featureVector[(str(state), action)])
 
 class PacmanQLearningAgent(QLearningAgent):
   def __init__(self):    
