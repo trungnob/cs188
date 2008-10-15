@@ -50,7 +50,7 @@ class QLearningAgent(AbstractReinforcementAgent):
     """
     "*** YOUR CODE HERE ***"
     listofAction=self.getLegalActions(state)
-    listofQValue=[self.myV.getCount((state,eachAction)) for eachAction in listofAction ]
+    listofQValue=[self.getQValue(state, eachAction) for eachAction in listofAction ]
     if len(listofQValue)==0:
         return 0;
     else:
@@ -62,7 +62,7 @@ class QLearningAgent(AbstractReinforcementAgent):
     """
     "*** YOUR CODE HERE ***"
     listofAction=self.getLegalActions(state)
-    listofQvalue=[self.myV.getCount((state,eachAction)) for eachAction in listofAction ]
+    listofQvalue=[self.getQValue(state, eachAction) for eachAction in listofAction ]
     if len(listofQvalue)==0:
          return None
     maxIndex=listofQvalue.index(max(listofQvalue))
@@ -145,11 +145,11 @@ class ApproximateQLearningAgent(QLearningAgent):
       where * is the dotProduct operator
     """
     "*** YOUR CODE HERE ***"
-    qVal = 0
+    qVal = 0.0
     featureVector = self.featExtractor.getFeatures(state, action)
     for key in featureVector:
         qVal += self.weight.getCount(key) * featureVector[key]
-    #print "Q: %d" % qVal
+   
     return qVal
     
   def update(self, state, action, nextState, reward):
@@ -173,6 +173,7 @@ class ApproximateQLearningAgent(QLearningAgent):
     featureVector = self.featExtractor.getFeatures(state, action)
     for key in featureVector:
         self.weight.setCount(key, self.weight.getCount(key) + self.alpha*correction*featureVector[key])
+   
 
 class PacmanQLearningAgent(QLearningAgent):
   def __init__(self):    
