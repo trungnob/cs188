@@ -15,27 +15,27 @@ def question3():
   return YOUR_ANSWER
   
 def question4a():
-  YOUR_ANSWER = None
+  YOUR_ANSWER = (0.3, 0, 0)
   return YOUR_ANSWER
 
 def question4b():
-  YOUR_ANSWER = None
+  YOUR_ANSWER = (0.2, 0.2, 0.0)
   return YOUR_ANSWER
 
 def question4c():
-  YOUR_ANSWER = None
+  YOUR_ANSWER = (0.3, 0, 0.5)
   return YOUR_ANSWER
 
 def question4d():
-  YOUR_ANSWER = None
+  YOUR_ANSWER = ()
   return YOUR_ANSWER
 
 def question4e():
-  YOUR_ANSWER = None
+  YOUR_ANSWER = (.01, .9, -0.01)
   return YOUR_ANSWER
 
 def question7():
-  YOUR_ANSWER = None
+  YOUR_ANSWER = 'NOT POSSIBLE'
   return YOUR_ANSWER
 
 if __name__ == '__main__':
