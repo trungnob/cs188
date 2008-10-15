@@ -11,23 +11,23 @@ def question2():
   return YOUR_ANSWER
 
 def question3():
-  YOUR_ANSWER = (0.9,0.014)
+  YOUR_ANSWER = (0.9, 0.014)
   return YOUR_ANSWER
   
 def question4a():
-  YOUR_ANSWER = (0.3, 0, 0)
+  YOUR_ANSWER = (0.8, 0, 4)
   return YOUR_ANSWER
 
 def question4b():
-  YOUR_ANSWER = (0.2, 0.2, 0.0)
+  YOUR_ANSWER = 'NOT POSSIBLE'
   return YOUR_ANSWER
 
 def question4c():
-  YOUR_ANSWER = (0.3, 0, 0.5)
+  YOUR_ANSWER = (0.8, 0, 0)
   return YOUR_ANSWER
 
 def question4d():
-  YOUR_ANSWER = ()
+  YOUR_ANSWER = (0.8, 0.5, 0.0)
   return YOUR_ANSWER
 
 def question4e():
