@@ -49,7 +49,6 @@ class QLearningAgent(AbstractReinforcementAgent):
       where is max is over legal actions
     """
     "*** YOUR CODE HERE ***"
-    
     listofAction=self.getLegalActions(state)
     listofQValue=[self.getQValue(state, eachAction) for eachAction in listofAction ]
     if len(listofQValue)==0:
@@ -92,9 +91,7 @@ class QLearningAgent(AbstractReinforcementAgent):
         action = random.choice(list_of_actions)
     else:
         action = self.getPolicy(state)
-#    return action
-
-    "*** YOUR CODE HERE ***"
+    #return action
     # Need to inform parent of action for Pacman
     self.doAction(state,action)    
     return action
@@ -109,7 +106,6 @@ class QLearningAgent(AbstractReinforcementAgent):
       it will be called on your behalf
     """
     listNextAction=self.getLegalActions(nextState)
-    
     listQnextSA=[self.myV.getCount((nextState,eachNextAction)) for eachNextAction in listNextAction ]
     if len(listQnextSA)==0:
         sample = reward 
@@ -117,7 +113,6 @@ class QLearningAgent(AbstractReinforcementAgent):
         sample=reward+self.gamma*max(listQnextSA)
     valueUpdate=(1.0-self.alpha)*self.myV.getCount((state,action))+self.alpha*sample
     self.myV.setCount((state,action), valueUpdate)
-    "*** YOUR CODE HERE ***"
 
 class ApproximateQLearningAgent(QLearningAgent):
   """
@@ -150,7 +145,6 @@ class ApproximateQLearningAgent(QLearningAgent):
     featureVector = self.featExtractor.getFeatures(state, action)
     for key in featureVector:
         qVal += self.weight.getCount(key) * featureVector[key]
-   
     return qVal
     
   def update(self, state, action, nextState, reward):
@@ -158,23 +152,10 @@ class ApproximateQLearningAgent(QLearningAgent):
        Should update your weights based on transition  
     """
     "*** YOUR CODE HERE ***"
-#    listNextAction=self.getLegalActions(nextState)
-##    #listVnextSA=[self.getValue(state) for eachNextAction in listNextAction]
-#    listQnextSA=[self.getQValue(nextState, eachNextAction) for eachNextAction in listNextAction ]
-#    if len(listQnextSA)==0:
-##        sample = reward
-#        correction = reward - self.getQValue(state, action)
-#    else:
-##        sample=reward+self.gamma*max(listQnextSA)
     correction = (reward + self.gamma*self.getValue(nextState)) - self.getQValue(state, action)
-#    correction = (reward + self.gamma*self.getValue(nextState)) - self.getQValue(state, action)
-   # print "V: %d" % self.getValue(nextState)
-#    valueUpdate=(1.0-self.alpha)*self.myV.getCount((state,action))+self.alpha*sample
-#    self.myV.setCount((state,action), valueUpdate)
     featureVector = self.featExtractor.getFeatures(state, action)
     for key in featureVector:
-        self.weight.setCount(key, self.weight.getCount(key) + self.alpha*correction*featureVector[key])
-   
+       self.weight.setCount(key, self.weight.getCount(key) + self.alpha*correction*featureVector[key])
 
 class PacmanQLearningAgent(QLearningAgent):
   def __init__(self):    
