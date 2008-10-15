@@ -49,6 +49,7 @@ class QLearningAgent(AbstractReinforcementAgent):
       where is max is over legal actions
     """
     "*** YOUR CODE HERE ***"
+    
     listofAction=self.getLegalActions(state)
     listofQValue=[self.getQValue(state, eachAction) for eachAction in listofAction ]
     if len(listofQValue)==0:
