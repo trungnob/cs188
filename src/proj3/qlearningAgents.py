@@ -157,15 +157,15 @@ class ApproximateQLearningAgent(QLearningAgent):
        Should update your weights based on transition  
     """
     "*** YOUR CODE HERE ***"
-    listNextAction=self.getLegalActions(nextState)
-#    #listVnextSA=[self.getValue(state) for eachNextAction in listNextAction]
-    listQnextSA=[self.getQValue(nextState, eachNextAction) for eachNextAction in listNextAction ]
-    if len(listQnextSA)==0:
-#        sample = reward
-        correction = reward - self.getQValue(state, action)
-    else:
-#        sample=reward+self.gamma*max(listQnextSA)
-        correction = (reward + self.gamma*max(listQnextSA)) - self.getQValue(state, action)
+#    listNextAction=self.getLegalActions(nextState)
+##    #listVnextSA=[self.getValue(state) for eachNextAction in listNextAction]
+#    listQnextSA=[self.getQValue(nextState, eachNextAction) for eachNextAction in listNextAction ]
+#    if len(listQnextSA)==0:
+##        sample = reward
+#        correction = reward - self.getQValue(state, action)
+#    else:
+##        sample=reward+self.gamma*max(listQnextSA)
+    correction = (reward + self.gamma*self.getValue(nextState)) - self.getQValue(state, action)
 #    correction = (reward + self.gamma*self.getValue(nextState)) - self.getQValue(state, action)
    # print "V: %d" % self.getValue(nextState)
 #    valueUpdate=(1.0-self.alpha)*self.myV.getCount((state,action))+self.alpha*sample
