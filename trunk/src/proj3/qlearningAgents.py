@@ -148,7 +148,7 @@ class ApproximateQLearningAgent(QLearningAgent):
     qVal = 0
     featureVector = self.featExtractor.getFeatures(state, action)
     for key in featureVector:
-        qVal += self.weight.getCount((state, action, key)) * featureVector[key]
+        qVal += self.weight.getCount(key) * featureVector[key]
     #print "Q: %d" % qVal
     return qVal
     
@@ -158,21 +158,21 @@ class ApproximateQLearningAgent(QLearningAgent):
     """
     "*** YOUR CODE HERE ***"
     listNextAction=self.getLegalActions(nextState)
-    #listVnextSA=[self.getValue(state) for eachNextAction in listNextAction]
-    listQnextSA=[self.myV.getCount((nextState,eachNextAction)) for eachNextAction in listNextAction ]
+#    #listVnextSA=[self.getValue(state) for eachNextAction in listNextAction]
+    listQnextSA=[self.getQValue(nextState, eachNextAction) for eachNextAction in listNextAction ]
     if len(listQnextSA)==0:
-        sample = reward
+#        sample = reward
         correction = reward - self.getQValue(state, action)
     else:
-        sample=reward+self.gamma*max(listQnextSA)
-    #    correction = (reward + self.gamma*max(listQnextSA)) - self.getQValue(state, action)
-        correction = (reward + self.gamma*self.getValue(nextState)) - self.getQValue(state, action)
-        #print "V: %d" % self.getValue(nextState)
-    valueUpdate=(1.0-self.alpha)*self.myV.getCount((state,action))+self.alpha*sample
-    self.myV.setCount((state,action), valueUpdate)
+#        sample=reward+self.gamma*max(listQnextSA)
+        correction = (reward + self.gamma*max(listQnextSA)) - self.getQValue(state, action)
+#    correction = (reward + self.gamma*self.getValue(nextState)) - self.getQValue(state, action)
+   # print "V: %d" % self.getValue(nextState)
+#    valueUpdate=(1.0-self.alpha)*self.myV.getCount((state,action))+self.alpha*sample
+#    self.myV.setCount((state,action), valueUpdate)
     featureVector = self.featExtractor.getFeatures(state, action)
     for key in featureVector:
-        self.weight.setCount((state, action, key), self.weight.getCount((state, action, key)) + self.alpha*correction*featureVector[key])
+        self.weight.setCount(key, self.weight.getCount(key) + self.alpha*correction*featureVector[key])
 
 class PacmanQLearningAgent(QLearningAgent):
   def __init__(self):    
