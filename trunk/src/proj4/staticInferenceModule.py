@@ -67,6 +67,12 @@ class StaticInferenceModule:
     new_reading_given_obs = normalize(new_reading_obs)
     return new_reading_given_obs                 
 
+    def fetch(self, key, pairList):
+        for _key, _value in pairList:
+            if key == _key:
+                return _key
+        return None
+    
 class ExactStaticInferenceModule(StaticInferenceModule):
   """
   You will implement an exact inference module for the static ghostbusters game.
