@@ -3,7 +3,6 @@ from util import *
 import util
 import random
 
-
 class StaticInferenceModule:
   """
   A static inference module must compute two quantities, conditioned on provided observations:
@@ -34,25 +33,47 @@ class StaticInferenceModule:
     
     Note that the observations are given as a dictionary.
     """
-    ghost_tups_obs = Counter()
-    ghost_tups = self.game.getInitialDistribution()
-    for ghost_tup in self.game.getGhostTuples():
-        p = ghost_tups.getCount(ghost_tup)
-        for obs in observations.items():
-            sensor, reading = obs
-            Reading_given_ghost_tups = self.game.getGhostTupleDistributionGivenPreviousGhostTuple(ghost_tup, sensor)
-            reading_given_ghost_tups = Reading_given_ghost_tups.getCount(reading)
-            p *= reading_given_ghost_tups
-        ghost_tups_obs.setCount(ghost_tup, p)
-    ghost_tups_obs = normalize(ghost_tups_obs)
-    return ghost_tups_obs
-        
+    util.raiseNotDefined()
+    
   def getReadingDistributionGivenObservations(self, observations, newLocation):
     """
     Compute the distribution over readings for the new location, given the
     current observations (given as a dictionary).
     """
+    util.raiseNotDefined()
+
+class ExactStaticInferenceModule(StaticInferenceModule):
+  """
+  You will implement an exact inference module for the static ghostbusters game.
+  
+  See the abstract 'StaticInferenceModule' class for descriptions of the methods.
+  
+  The current implementation below is broken, returning all uniform distributions.
+  """
+  def getGhostTupleDistributionGivenObservations(self, observations):    
+    "*** YOUR CODE HERE ***"
+    
+    ghost_tups = self.game.getInitialDistribution()
+    ghost_tups_obs = util.Counter()
+    for ghost in self.game.getGhostTuples():
+        p = ghost_tups.getCount(ghost)
+        for obs in observations.items():
+            location, reading = obs
+            #print ghost
+            Reading_given_ghost_tups = self.game.getReadingDistributionGivenGhostTuple(ghost, location)
+            reading_given_ghost_tups = Reading_given_ghost_tups.getCount(reading)
+            #print reading_given_ghost_tups
+            p *= reading_given_ghost_tups
+        ghost_tups_obs.setCount(ghost, p)
+    ghost_tups_obs = normalize(ghost_tups_obs)
+    return ghost_tups_obs    
+    # BROKEN
+    #return self.game.getInitialDistribution() 
+
+  def getReadingDistributionGivenObservations(self, observations, newLocation):
+    "*** YOUR CODE HERE ***"
     old_reading_new_loc = self.fetch(newLocation, observations)
+    
     new_reading_obs = Counter()
     Ghost_tups_given_obs = self.getGhostTupleDistributionGivenObservations(observations)
     for ghost_tup, ghost_tups_given_obs in Ghost_tups_given_obs.items():
@@ -65,37 +86,14 @@ class StaticInferenceModule:
                     obs_given_ghost = 1.0
             new_reading_obs.incrementCount(reading, ghost_tups_given_obs * reading_given_tup)
     new_reading_given_obs = normalize(new_reading_obs)
+
     return new_reading_given_obs                 
 
-    def fetch(self, key, pairList):
-        for _key, _value in pairList:
-            if key == _key:
-                return _key
-        return None
-    
-class ExactStaticInferenceModule(StaticInferenceModule):
-  """
-  You will implement an exact inference module for the static ghostbusters game.
-  
-  See the abstract 'StaticInferenceModule' class for descriptions of the methods.
-  
-  The current implementation below is broken, returning all uniform distributions.
-  """
-  
-  def getGhostTupleDistributionGivenObservations(self, observations):
-    
-    "*** YOUR CODE HERE ***"
-    
+  def fetch(self, key, pairList):
+      for _key, _value in pairList:
+          if key == _key:
+              return _key
+      return None
     # BROKEN
-    return self.game.getInitialDistribution() 
-
-
-
-
-  def getReadingDistributionGivenObservations(self, observations, newLocation):
-    
-    "*** YOUR CODE HERE ***"
-    
-    # BROKEN
-    return listToDistribution(Readings.getReadings())
+    #return listToDistribution(Readings.getReadings())
   
