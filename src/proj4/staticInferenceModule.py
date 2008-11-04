@@ -52,24 +52,23 @@ class ExactStaticInferenceModule(StaticInferenceModule):
   """
   def getGhostTupleDistributionGivenObservations(self, observations):    
     "*** YOUR CODE HERE ***"
-    
-    ghost_tups = self.game.getInitialDistribution()
-    ghost_tups_obs = util.Counter()
-    for ghost in self.game.getGhostTuples():
-        p = ghost_tups.getCount(ghost)
-        for obs in observations.items():
-            location, reading = obs
-            #print ghost
-            Reading_given_ghost_tups = self.game.getReadingDistributionGivenGhostTuple(ghost, location)
-            reading_given_ghost_tups = Reading_given_ghost_tups.getCount(reading)
-            #print reading_given_ghost_tups
-            p *= reading_given_ghost_tups
-        ghost_tups_obs.setCount(ghost, p)
-    ghost_tups_obs = normalize(ghost_tups_obs)
-    return ghost_tups_obs    
-    # BROKEN
-    #return self.game.getInitialDistribution() 
 
+    NewDistributions = util.Counter()
+    PreviousDistrubutions = self.game.getInitialDistribution()
+    for eachGhost in self.game.getGhostTuples():
+        p_eachGhost = PreviousDistrubutions.getCount(eachGhost)
+        for eachObservation in observations.items():
+            valueOfSensor= self.ValueOfSensorReadingGivenGhostPosition(eachGhost, eachObservation)
+            p_eachGhost *= valueOfSensor
+        NewDistributions.setCount(eachGhost, p_eachGhost)
+    NewDistributions = normalize(NewDistributions)
+    return NewDistributions    
+  def ValueOfSensorReadingGivenGhostPosition(self,Ghost,Observation):
+       sensorLocation, sensorReading = Observation#Reading = Green , Blue
+       Distribution_ReadingSensor_ghostPosition = self.game.getReadingDistributionGivenGhostTuple(Ghost, sensorLocation)
+       p_Sensor_ghostPostion = Distribution_ReadingSensor_ghostPosition.getCount(sensorReading)
+       return p_Sensor_ghostPostion
+   
   def getReadingDistributionGivenObservations(self, observations, newLocation):
     "*** YOUR CODE HERE ***"
     old_reading_new_loc = self.fetch(newLocation, observations)
