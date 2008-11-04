@@ -71,28 +71,15 @@ class ExactStaticInferenceModule(StaticInferenceModule):
    
   def getReadingDistributionGivenObservations(self, observations, newLocation):
     "*** YOUR CODE HERE ***"
-    old_reading_new_loc = self.fetch(newLocation, observations)
-    
+
     new_reading_obs = Counter()
     Ghost_tups_given_obs = self.getGhostTupleDistributionGivenObservations(observations)
     for ghost_tup, ghost_tups_given_obs in Ghost_tups_given_obs.items():
         Reading_given_tup = self.game.getReadingDistributionGivenGhostTuple(ghost_tup, newLocation)
         for reading in Readings.getReadings():
             reading_given_tup = Reading_given_tup.getCount(reading)
-            if old_reading_new_loc != None:
-                obs_given_ghost = 0.0
-                if old_reading_new_loc == reading:
-                    obs_given_ghost = 1.0
             new_reading_obs.incrementCount(reading, ghost_tups_given_obs * reading_given_tup)
     new_reading_given_obs = normalize(new_reading_obs)
-
     return new_reading_given_obs                 
 
-  def fetch(self, key, pairList):
-      for _key, _value in pairList:
-          if key == _key:
-              return _key
-      return None
-    # BROKEN
-    #return listToDistribution(Readings.getReadings())
-  
+
