@@ -207,9 +207,7 @@ class StaticKeyboardAgent(StaticGhostbusterAgent):
 class StaticVPIAgent(StaticGhostbusterAgent):
   """
   Computer-controlled ghostbuster agent.
-  
   This agent plays using value of (perfect) information calculations.
-  
   The initial implementation is broken, always taking a random busting action
   without sensing.  You will rewrite it to greedily sense if any sensing action
   has an expected gain in utility / score (taking into account the cost of
@@ -217,12 +215,25 @@ class StaticVPIAgent(StaticGhostbusterAgent):
   position tuple to bust.  In this case, your agent should bust the tuple with
   the highest expected utility / score according to its current beliefs.
   """
+  def getExpectedCounts(self, observations):
+    if (None == observations):
+         observations = self.observations
+    p_GhostTuples_given_observations = self.inferenceModule.getGhostTupleDistributionGivenObservations(observations)
+    expectedCounts = Counter()
+    for bustLocation in self.game.getBustingOptions():
+        for ghostTuple in p_GhostTuples_given_observations.keys():
+            probability = p_GhostTuples_given_observations[ghostTuple]
+            for ghost in ghostTuple:
+             if ghost in bustLocation:
+                expectedCounts.incrementCount(ghostTuple, probability*GHOST_SCORE)
+    return expectedCounts 
+  
   
   def getAction(self):
-#    self.game.display.pauseGUI()
+    self.game.display.pauseGUI()
     utilityGain = util.Counter()
     observations = self.observations
-    expectedUtilities = self.getExpectedUtilities(observations)
+    expectedUtilities = self.getExpectedCounts(observations)
     currentBestEU, currentBestBustingOptions = maxes(expectedUtilities)
     for location in self.game.getLocations():
       if location in observations.keys(): continue
@@ -233,56 +244,22 @@ class StaticVPIAgent(StaticGhostbusterAgent):
         if outcomeProbability == 0.0: continue
         newObservations = dict(observations)
         newObservations[location] = reading
-        outcomeExpectedUtilities = self.getExpectedUtilities(newObservations)
+        outcomeExpectedUtilities = self.getExpectedCounts(newObservations)
         outcomeBestEU, outcomeBestActions = maxes(outcomeExpectedUtilities)
         expectedNewMEU += outcomeBestEU * outcomeProbability
       utilityGain[location] = expectedNewMEU - currentBestEU - abs(SENSOR_SCORE)
-
     bestGain, bestSensorLocations = maxes(utilityGain)
-    print utilityGain
-    print bestSensorLocations
-    #print "bestGain:" , bestGain
+#    print utilityGain
+#    print bestSensorLocations
     if bestGain > 0:
          Return=[Actions.makeSensingAction(lo) for lo in bestSensorLocations]
     else:
          Return=[Actions.makeBustingAction(op) for op in currentBestBustingOptions]
-    #print Return
+         print Return
+         self.game.display.pauseGUI()
     return random.choice(Return)
 
-  def getExpectedUtilities(self, observations):
-    ghost_tuples = self.inferenceModule.getGhostTupleDistributionGivenObservations(observations)
-    #getShipTupleDistributionGivenObservations(observations)
-    expectedUtilities = util.Counter()
-    for option in self.game.getBustingOptions():
-    #getBombingOptions():
-      expectedUtility = 0
-      for ghosts in ghost_tuples.keys():
-        p = ghost_tuples[ghosts]
-        utility = GHOST_SCORE * self.numMatches(option, ghosts)
-        expectedUtility += p * utility
-      expectedUtilities[option] = expectedUtility
-    return expectedUtilities
-  
-  def numMatches(self, option, ghosts):
-    matches = 0
-    for ghost in ghosts:
-      if ghost in option:
-        matches += 1
-    return matches
 
-  # END SOLUTION
-
-#
-#
-#
-#  def getAction(self):
-#    
-#    "*** YOUR CODE HERE ***"
-#    
-#    
-#    return Actions.makeBustingAction(random.choice(self.game.getBustingOptions()))
-#    
-#  
 
     
 class DynamicGhostbusterAgent(GhostbusterAgent):
