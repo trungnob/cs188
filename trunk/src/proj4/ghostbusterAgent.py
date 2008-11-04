@@ -225,7 +225,7 @@ class StaticVPIAgent(StaticGhostbusterAgent):
             probability = p_GhostTuples_given_observations[ghostTuple]
             for ghost in ghostTuple:
              if ghost in bustLocation:
-                expectedCounts.incrementCount(ghostTuple, probability*GHOST_SCORE)
+                expectedCounts.incrementCount(bustLocation, probability*GHOST_SCORE)
     return expectedCounts 
   
   
@@ -236,7 +236,6 @@ class StaticVPIAgent(StaticGhostbusterAgent):
     expectedUtilities = self.getExpectedCounts(observations)
     currentBestEU, currentBestBustingOptions = maxes(expectedUtilities)
     for location in self.game.getLocations():
-      if location in observations.keys(): continue
       expectedNewMEU = 0
       p_Reading_given_observations = self.inferenceModule.getReadingDistributionGivenObservations(observations, location)
       for reading in Readings.getReadings():
