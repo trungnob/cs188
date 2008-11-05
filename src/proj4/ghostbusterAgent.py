@@ -227,17 +227,17 @@ class StaticVPIAgent(StaticGhostbusterAgent):
              if ghost in bustLocation:
                 expectedCounts.incrementCount(bustLocation, probability*GHOST_SCORE)
     return expectedCounts 
-  
-  
+   
   def getAction(self):
-    self.game.display.pauseGUI()
+   
     utilityGain = util.Counter()
     observations = self.observations
     expectedUtilities = self.getExpectedCounts(observations)
     currentBestEU, currentBestBustingOptions = maxes(expectedUtilities)
     for location in self.game.getLocations():
+      if location in observations :   continue
       expectedNewMEU = 0
-      p_Reading_given_observations = self.inferenceModule.getReadingDistributionGivenObservations(observations, location)
+      p_Reading_given_observations = self.inferenceModule.getReadingDistributionGivenObservations(observations, location) 
       for reading in Readings.getReadings():
         outcomeProbability = p_Reading_given_observations.getCount(reading)
         if outcomeProbability == 0.0: continue
@@ -246,17 +246,20 @@ class StaticVPIAgent(StaticGhostbusterAgent):
         outcomeExpectedUtilities = self.getExpectedCounts(newObservations)
         outcomeBestEU, outcomeBestActions = maxes(outcomeExpectedUtilities)
         expectedNewMEU += outcomeBestEU * outcomeProbability
-      utilityGain[location] = expectedNewMEU - currentBestEU - abs(SENSOR_SCORE)
+      utilityGain[location] = expectedNewMEU - currentBestEU 
     bestGain, bestSensorLocations = maxes(utilityGain)
-#    print utilityGain
-#    print bestSensorLocations
+    
     if bestGain > 0:
-         Return=[Actions.makeSensingAction(lo) for lo in bestSensorLocations]
+         Return=Actions.makeSensingAction(random.choice(bestSensorLocations))
     else:
-         Return=[Actions.makeBustingAction(op) for op in currentBestBustingOptions]
-         print Return
-         self.game.display.pauseGUI()
-    return random.choice(Return)
+         Return=Actions.makeBustingAction(random.choice( currentBestBustingOptions))
+#    print "Utility Gain" , utilityGain
+#    print "Best Sensor Location:" ,bestSensorLocations
+#    print "Best Busting Options:" , currentBestBustingOptions
+#    print Return
+#    self.game.display.pauseGUI()     
+   
+    return Return
 
 
 
