@@ -235,9 +235,8 @@ class StaticVPIAgent(StaticGhostbusterAgent):
     for location in self.game.getLocations():
       if location in observations :   continue
       nextMEU = 0
-      newReadingDistrubution = self.inferenceModule.getReadingDistributionGivenObservations(observations, location) 
-      for newReading in Readings.getReadings():
-        newReadingProbability = newReadingDistrubution.getCount(newReading)
+      newReadingDistribution = self.inferenceModule.getReadingDistributionGivenObservations(observations, location) 
+      for newReading, newReadingProbability in newReadingDistribution.items():
         if newReadingProbability == 0.0: continue
         oldReading=None
         if location in observations.keys():

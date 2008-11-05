@@ -1,0 +1,428 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd"><html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<title>Assignment 5: Bayesian Networks</title>
+<link href="projects.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<h1>Assignment 5: Bayesian Networks</h2>
+<br>
+<em>Due 04/09/07 at 11:59pm</em><br>
+<span class="style2">
+<p><strong>What to submit:</strong> You will fill in portions of <code>battleshipAgent.py</code>
+(only) during the assignment, and submit it.&nbsp; The only other file you
+should submit is a readme in .txt or .pdf format in which you answer the written
+portion of this assignment.</p>
+<h2>Part 1: Written Assignment </h2>
+<p><em><strong>Question 1 (5 points)&nbsp; </strong></em>Consider the following
+network, in which a mouse agent is reasoning about the behavior of a cat.&nbsp;
+The mouse really wants to know whether the cat will attack (A), which depends on
+whether the cat is hungry (H) and whether the cat is sleepy (S).&nbsp; The mouse
+can observe two things, whether the cat is sleepy (S) and whether the cat has a
+collar (C). The cat is more often sleepy (S) when it's either full (f) or
+starved (v) than when it is peckish (p) and the collar (C) tends to indicate
+that the cat is not starved.&nbsp; Note that entries are omitted, such as P(C=~c),
+when their complements are given.</p>
+<table border="0" cellspacing="20">
+  <tr>
+    <td>P(C)</td>
+    <td>P(H|C)</td>
+    <td>P(S|H)</td>
+    <td>P(A|H,S)</td>
+  </tr>
+  <tr>
+    <td valign="top">
+      <table border="1" cellspacing="1" width="10%" id="AutoNumber1">
+        <tr>
+          <td>
+            <p align="center">C</td>
+          <td>
+            <p align="center">P</td>
+        </tr>
+        <tr>
+          <td width="50%" align="right">c</td>
+          <td width="50%">0.30</td>
+        </tr>
+      </table>
+    </td>
+    <td valign="top">
+      <table border="1" cellspacing="1" width="10%" id="AutoNumber1">
+        <tr>
+          <td>
+            <p align="center">H</td>
+          <td>
+            <p align="center">C</td>
+          <td>
+            <p align="center">P</td>
+        </tr>
+        <tr>
+          <td width="50%" align="right">f</td>
+          <td width="50%" align="right">c</td>
+          <td width="50%">0.60</td>
+        </tr>
+        <tr>
+          <td width="50%" align="right">v</td>
+          <td width="50%" align="right">c</td>
+          <td width="50%">0.10</td>
+        </tr>
+        <tr>
+          <td width="50%" align="right">p</td>
+          <td width="50%" align="right">c</td>
+          <td width="50%">0.30</td>
+        </tr>
+        <tr>
+          <td width="50%" align="right">f</td>
+          <td width="50%" align="right">~c</td>
+          <td width="50%">0.20</td>
+        </tr>
+        <tr>
+          <td width="50%" align="right">v</td>
+          <td width="50%" align="right">~c</td>
+          <td width="50%">0.40</td>
+        </tr>
+        <tr>
+          <td width="50%" align="right">p</td>
+          <td width="50%" align="right">~c</td>
+          <td width="50%">0.30</td>
+        </tr>
+      </table>
+    </td>
+    <td valign="top">
+      <table border="1" cellspacing="1" width="10%" id="AutoNumber1">
+        <tr>
+          <td>
+            <p align="center">S</td>
+          <td>
+            <p align="center">H</td>
+          <td>
+            <p align="center">P</td>
+        </tr>
+        <tr>
+          <td width="50%" align="right">s</td>
+          <td width="50%" align="right">f</td>
+          <td width="50%">0.90</td>
+        </tr>
+        <tr>
+          <td width="50%" align="right">s</td>
+          <td width="50%" align="right">v</td>
+          <td width="50%">0.70</td>
+        </tr>
+        <tr>
+          <td width="50%" align="right">s</td>
+          <td width="50%" align="right">p</td>
+          <td width="50%">0.30</td>
+        </tr>
+      </table>
+    </td>
+    <td valign="top">
+      <table border="1" cellspacing="1" width="10%" id="AutoNumber1">
+        <tr>
+          <td>
+            <p align="center">A</td>
+          <td>
+            <p align="center">H</td>
+          <td>
+            <p align="center">S</td>
+          <td>
+            <p align="center">P</td>
+        </tr>
+        <tr>
+          <td width="50%" align="right">a</td>
+          <td width="50%" align="right">f</td>
+          <td width="50%" align="right">s</td>
+          <td width="50%">0.01</td>
+        </tr>
+        <tr>
+          <td width="50%" align="right">a</td>
+          <td width="50%" align="right">f</td>
+          <td width="50%" align="right">~s</td>
+          <td width="50%">0.10</td>
+        </tr>
+        <tr>
+          <td width="50%" align="right">a</td>
+          <td width="50%" align="right">v</td>
+          <td width="50%" align="right">s</td>
+          <td width="50%">0.50</td>
+        </tr>
+        <tr>
+          <td width="50%" align="right">a</td>
+          <td width="50%" align="right">v</td>
+          <td width="50%" align="right">~s</td>
+          <td width="50%">0.90</td>
+        </tr>
+        <tr>
+          <td width="50%" align="right">a</td>
+          <td width="50%" align="right">p</td>
+          <td width="50%" align="right">s</td>
+          <td width="50%">0.20</td>
+        </tr>
+        <tr>
+          <td width="50%" align="right">a</td>
+          <td width="50%" align="right">p</td>
+          <td width="50%" align="right">~s</td>
+          <td width="50%">0.70</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<p>Assume you have the following samples relative to the evidence C=c, S=s:</p>
+<ul>
+  C=c, H=f, S=s, A=~a<br>
+  C=c, H=f, S=s, A=~a<br>
+  C=c, H=f, S=s, A=~a<br>
+  C=c, H=p, S=s, A=a<br>
+  C=c, H=v, S=s, A=~a<br>
+</ul>
+<p>&nbsp;
+<ol>
+  <li>Draw the graphical model associated with this problem.</li>
+  <li>Calculate P(A | C=c, S=s) using joint inference by enumeration</li>
+  <li>Assume the samples were generated by rejection sampling.&nbsp; What would
+    the estimate of P(A | C=c, S=s) be?</li>
+  <li>Assume the samples were generated by likelihood weighting.&nbsp; What
+    would the estimate of P(A | C=c, S=s) be?</li>
+  <li>Which sampling scheme is more likely to have generated these samples,
+    rejection sampling or likelihood weighting?
+  <li>It might seem strange that collars &quot;cause&quot; hunger: their
+    relationship is one of correlation, not causation.&nbsp; Propose a new node
+    which allows a more sensible causal interpretation and state how the network
+    connections should change to accommodate it.</li>
+</ol>
+<p><em><strong>Question 2 (5 points).</strong></em> Sometimes we can prune down
+a network before inference to simplify our computations.&nbsp; In this problem,
+you will develop a condition under which &quot;dangling&quot; variables can be
+pruned.</p>
+<ol type="a">
+  <li>Consider two networks, G and G'.&nbsp; In G, we have nodes X, Y, and Z
+    where X is the parent of Y and Y is the parent of Z, so that P(x, y, z) =
+    P(x) P(y | x) P(z | y).&nbsp; G' is identical to G except, Z and its CPTs
+    have been deleted.&nbsp; Show that P(x | y) is the same whether we compute
+    it from G or G'.</li>
+  <li>More generally, assume we have a network G in which there are nodes X1 ...
+    Xn.&nbsp; Assume that we wish to calculate P(Q<sub>1</sub>=q<sub>1</sub>,
+    ... Q<sub>k</sub>=q<sub>k </sub>| E<sub>1</sub>=e<sub>1</sub>, ... E<sub>m</sub>=e<sub>m</sub>),
+    where each query variable Q and evidence variable E is one of the variables
+    X<sub>i</sub>.&nbsp; Let H<sub>1</sub>, ... H<sub>p</sub> be all the
+    remaining (hidden) nodes which are neither observed nor queried.&nbsp; Write
+    an expression for P(q<sub>1</sub>, ... q<sub>k </sub>| e<sub>1</sub>, ... e<sub>m</sub>)
+    in terms of the full joint distribution entries&nbsp; P(q<sub>1</sub>, ... q<sub>k</sub>,
+    e<sub>1</sub>, ... e<sub>m</sub>, h<sub>1</sub>, ... h<sub>p</sub>).</li>
+  <li>Assume that one of the hidden variables H, say H<sub>1</sub>,&nbsp; is a
+    leaf node, that is, it has no children in G.&nbsp; Let G' be identical to G
+    but with H removed.&nbsp; Show that P(q<sub>1</sub>, ... q<sub>k </sub>| e<sub>1</sub>,
+    ... e<sub>m</sub>) is the same whether calculated in G or G'.</li>
+  <li>Prove that any node which does not dominate either an evidence or query
+    node (&quot;dangling nodes&quot;) may be pruned without effecting the result
+    of a query.</li>
+</ol>
+
+<h2> Part 2: Battle Ship Programming Project</h2>
+<h3>Introduction</h3>
+<p>In this part, you will design agents for a variant of the game of <a href="http://www.superkids.com/aweb/tools/logic/bship/">Battleship</a>.&nbsp;
+In this game, you must locate the opponent's ships on a grid using sensors, and
+then guess their locations.&nbsp; For this project, the ships do not move.</p>
+<p>The code for this project contains the following files, available as a <a href="project3-3.zip">zip
+archive</a>.</p>
+<table border="0" cellpadding="10">
+  <tr>
+    <td colspan="2"><b>Battleship</b></td>
+  </tr>
+  <tr>
+    <td><a href="battleship.py"><code>battleship.py</code></a></td>
+    <td>The main code for the game of Battleship. You should familiarize
+      yourself with the general outline of this code.</td>
+  </tr>
+  <tr>
+    <td><a href="tutorial.py"><code>tutorial.py</code></a></td>
+    <td>Tutorial script -- start here!</td>
+  </tr>
+  <tr>
+    <td><a href="sensorDistributions.py"><code>sensorDistributions.py</code></a></td>
+    <td>Plug-in for the GUI interface. You can ignore this file.</td>
+  </tr>
+  <tr>
+    <td><a href="graphicsUtils.py"><code>graphicsUtils.py</code></a></td>
+    <td>Graphics utilities. You can ignore this file.</td>
+  </tr>
+  <tr>
+    <td><a href="util.py"><code>util.py</code></a></td>
+    <td>Tools used in battleship. Try to be familiar with some of these tools,
+      and they will save you a lot of time.</td>
+  </tr>
+  <tr>
+    <td colspan="2"><b>Agents</b></td>
+  </tr>
+  <tr>
+    <td><a href="battleshipAgent.py"><code>battleshipAgent.py</code></a></td>
+    <td>This is where all your code will go. Don't ignore this file.</td>
+  </tr>
+</table>
+<p>&nbsp;
+
+<p><strong>Evaluation:</strong> Your code will be autograded for technical
+correctness. Please <em>do not</em> change the names of any provided functions
+or classes within the code, or you will wreak havoc on the autograder. Your
+answers to discussion questions will also be graded.
+<p><strong>Academic Dishonesty:</strong> We will be checking your code against
+other submissions in the class for logical redundancy. If you copy someone
+else's code and submit it with minor changes, we will know. These cheat
+detectors are quite hard to fool, so please don't try. We trust you all to
+submit your own work only; please don't let us down. Instead, contact the course
+staff if you are having trouble.
+<h3>Battleship and BNs</h3>
+<p>In this cs188 version game of battleship, the goal is to locate and bomb the
+battleship(s) hiding on the grid.&nbsp; Unlike in classic battleship, however,
+you aren't guessing at random.&nbsp; You can obtain information about the ships'
+whereabouts by dropping sensors at grid positions.&nbsp; These sensors return
+readings, which are correlated with the distance to the closest ship.&nbsp; You only have one bomb per ship, and bombing, successful or not,
+ends the game.&nbsp; There are two tasks of interest in this game.&nbsp; First,
+we would like to compute probability distributions over ship locations given
+sensor readings.&nbsp; This is the inference problem.&nbsp; Second, we want to
+decide, given our current beliefs about ship locations, whether to sense or
+bomb, and where.&nbsp; This is the decision problem.&nbsp; You will build agents
+to solve both of these problems.</p>
+<p>You can probably figure out the rules just by playing, but here's the
+official version:</p>
+<p>At any time, you can sense or bomb.&nbsp; If you wish to sense, left-click
+a grid location, and you will reveal the sensor reading at that location.&nbsp;
+You cannot &quot;re-sense&quot; the same location.&nbsp; The intuition is that
+time is frozen and your observation, though noisy, will not change until the
+world changes (which it will not do for this assignment).&nbsp; The
+observation you get from a sensor will be one of <code>RED, ORANGE, YELLOW,</code> or <code>GREEN</code>,
+which roughly indicates how close the closest ship is to the sensor
+location.&nbsp; The exact sensor model is given in <code>sensorDistributions.py</code>.&nbsp;
+You lose one point per sensor revealed.</p>
+<p>Once you are ready to bomb, click the BOMB button. It will turn red to
+indicate that you are in bombing mode.&nbsp; All you can do now is drop as many
+bombs as there are ships on the board.&nbsp; Once all your bombs are used up,
+you will see which were hits and which were misses.&nbsp; All ships in any squares
+you bomb are hit (you can hit multiple ships with a single bomb if you're
+lucky).&nbsp; You gain 50 points for each ship you hit.</p>
+<p>To get started with battleship, let's play a few games.&nbsp; Run battleship
+from the command line:</p>
+<p><code>&nbsp; python battleship.py -w -q</code></p>
+<p>As before, there are many command-line options, which you can display with
+the <code>-h</code> option.&nbsp; In this case, the <code>-w</code> flag shows
+the true locations of the ships, and the <code>-q</code> flag suppresses the
+display of agent beliefs (since you have no agent yet).</p>
+<p>Left-click to sensor a square or click the bomb button to begin
+bombing.&nbsp; Remember that once you bomb, the game will end, whether you hit
+the ship or not.&nbsp; Try a bigger layout using (<code>-l medium</code>).&nbsp;
+Now, using (<code>-l test</code>), a 3 by 3 layout, try sensing all 9 squares.
+Notice that there is no noise in the sensor readings -- that is, the information
+provided by <code>RED, ORANGE, YELLOW,</code> and <code>GREEN</code> is
+deterministic given the location of the ship.&nbsp; You can set the sensor
+reading distribution at the command line with (<code>-s noisy</code>). Take a
+look at <code>sensorDistributions.py</code> to see what the deterministic and noisy
+distributions look like.&nbsp; It should be more difficult to find the ship
+using the noisy distribution.&nbsp; Try some games on the medium layout with
+noisy sensors and no true locations to get an idea of what we're asking the
+agents to do!</p>
+<p><em><strong>Question 0 (no points)&nbsp; </strong></em>Work through the brief
+tutorial (<code>tutorial.py</code>), which provides an introduction to the major
+battleship classes and functions you will find helpful.</p>
+<p>Let's formalize the static battleship domain as a Bayes' net.&nbsp; The full
+network structure is shown below (for a 2x3 layout):</p>
+<p><center><img width="300" src="bn-1.png"></center></p>
+<p>The S node represents the tuple of ship positions.&nbsp; You could imagine
+having a separate variable for each ship; this formulation is equivalent.&nbsp;
+You can get the prior distribution over ship tuples from <code>Game.getShipTupleDistribution()</code>.&nbsp;
+In general, there are a lot of important <code>Game.getX()</code> methods, and
+your agents and inference modules will have <code>self.game</code>
+objects.&nbsp; Note that if there is only one ship in play, you will still get
+singleton tuples of locations, not just a bare location.&nbsp; There is a random
+variable R<sub>i,j</sub> for each position (row, col) = (i, j).&nbsp; Each
+reading depends only on the ship position.&nbsp; The conditional distribution
+for R<sub>i,j</sub> given a value for S can be fetched with <code>Game.getReadingDistributionGivenShipTuple()</code>.</p>
+<p><em><strong>Question 1 (6 points)&nbsp; </strong></em>Try running without the
+<code>-q</code> flag, if you haven't already.&nbsp; The GUI will now display the
+agent's posterior beliefs about the location of the ship (S) given the revealed
+sensors ({R<sub>i,j</sub>=r<sub>i,j</sub>}).&nbsp; However, as you haven't
+written anything yet, there is a placeholder which always returns the
+uniform distribution over locations.&nbsp; Look at the <code>StaticKeyboardAgent</code>,
+which is actually playing the game: it delegates action choice to you, the
+human, and uses an <code>ExactStaticInferenceModule</code> to compute
+distributions over ships.&nbsp; You will implement the function <code>getShipTupleDistributionGivenObservations()</code>
+in the <code>ExactStaticInferenceModule</code> class in <code>battleshipAgent.py</code>.&nbsp;
+It takes a dictionary of location / reading pair and should calculate the
+posterior distribution over the location of a ship given those
+observations.&nbsp; The returned object should be a dictionary which has all singleton tuples of all the
+grid locations as keys and posterior probabilities (that the ship is in that
+position) as values.&nbsp; You might try printing out the observations as you
+play to see what they look like.&nbsp; Test your agent by playing with noiseless
+sensors (<code>-s deterministic</code>, which is the default). You also might
+use <code>-w</code> to show the true ship position for debugging.&nbsp; Once
+your code seems to be working, try noisy sensor distributions (<code>-s noisy</code>).&nbsp;
+Note that thanks to your results in the question 2 in part 1, you can ignore all unobserved reading
+variables when you compute the posterior over S.  That is, you can treat the network on the left as if it were the one on the right:</p>
+<center><img width="300" src="bn-2.png">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img width="295" src="bn-3.png"></center>
+<p><strong><em>Question 2 (7 points) </em></strong>You can put multiple ships on
+the board with the <code>-k</code> option.&nbsp; Try a game with <code>-k 2 -q</code>.&nbsp;
+You now need to make sure your inference works correctly for the case of
+multiple ships; it may already be correct, depending on how you coded your answer to question
+1 (you will only turn in this more general version).&nbsp; Whereas before S was essentially a ship position, it is now a ship
+tuple, and so we are calculating posteriors over ship tuples.&nbsp; For example,
+if we have 2 ships, we calculate the posterior probability of (ship1, ship2)
+being ((0,0), (0,0)), ((0,0), (0,1)), and so on.&nbsp; Because the ships are
+interchangeable, you will never know which exact ship is in which location, but
+you may know which k locations are occupied.&nbsp; When there are multiple
+ships, the GUI will display the expected number of ships at each location.&nbsp;
+We have provided a function in the mostly abstract <code>StaticBattleshipAgent</code>
+class called <code>getExpectedShipCounts()</code> which extracts expected counts
+from your posterior over S; make sure you understand this method.&nbsp; In the
+single-ship case, the expected ships counts are just the beliefs we compute in <code>getShipTupleDistributionGivenObservations()</code>.&nbsp;
+In the k-ship case, however, the expected number of ships across all locations will
+be k.&nbsp; For example, you may have a posterior that ((0,0), (0,1)) is 0.5 and
+((0,1), (0,0)) is 0.5, at which point both of (0,0) and (0,1) will have expected
+counts of 1.0.&nbsp; Try your code with 2 and 3 ships. Make sure you understand
+why inference slows down as k increases.</p>
+
+<p><em><strong>Question 3 (7 points) </strong></em>You will now write a new agent, which makes decisions using your inference
+code.&nbsp; The simplest decision to make is where to bomb given current beliefs
+over ship locations S.&nbsp; This computation is basically an expectimax
+computation, shown diagrammatically below.&nbsp; At the root max node, you can
+select any bombing option (tuple of k squares), and the expected utility (score)
+is the max over all actions' expected utilities.&nbsp; Each action will produce
+an expected utility which is the expected number of ships in those squares times
+the score per ship, <code>BATTLESHIP_SCORE</code>.
+<p><center><img width="300" src="tree-1.png"></center></p>
+<p>However, you need not bomb right away.&nbsp; Instead, you might sense first,
+revealing a single new reading, and then bomb.&nbsp; In this case, you would
+have various sensing actions available to you.&nbsp; Each sensing action leads
+to a chance node with a distribution P(R<sub>i,j</sub> | {r}), which describes
+the agent's beliefs about what reading will emerge at that location, given the
+previous readings.&nbsp; For each such new reading, we will have an optimal
+bombing option and the new accompanying expected utility.&nbsp; You agent should
+usually take the sensing action which reveals the reading which has the largest
+value of information, that is, expected gain in maximum expected utility.&nbsp;
+However, once the value of the information is less that 1 point, it should stop
+sensing and bomb.&nbsp; In deciding its actions, your agent does not evaluate the futures
+in which it senses multiple times (though it may indeed end up sensing multiple times).&nbsp;
+This decision process is therefore not optimal; the
+optimal agent would also explicitly consider the possibility of sensing more than once
+before bombing.&nbsp; In other words, you have an agent with look-ahead depth 2
+for its action selection.</p>
+<p>The search tree for this process is represented in the following diagram:</p>
+<p><center><img width="300" src="tree-2.png"></center></p>
+<p>Build an agent which not only
+computes posterior beliefs, but also makes decisions, using the at-most-one-sensor
+look-ahead described above.&nbsp; The agent can either bomb or sense, if that is worthwhile to do so, by looking
+ahead 1 step. Note that the agent can do multiple sensing steps before bombing, but it just look-ahead only one step
+in advance. You will need to fill in code in <code>StaticVPIAgent.getAction()</code>
+and <code>ExactStaticInferenceModule.getReadingDistributionGivenObservations()</code>.&nbsp;
+You may wish to think first about the one-ship case before generalizing to the
+multi-ship case, but the code should be the same either way.&nbsp; Test your VPI
+agent with (<code>-p vpi</code>), first using deterministic sensors (<code>-s
+deterministic</code>) and then with noisy sensors (<code>-s noisy</code>).&nbsp;
+It should work very well in the deterministic case, but might sometimes make obviously
+non-optimal decisions in the noisy case, because of the limited look-ahead.Make sure your code run at reasonable
+speed for the 1 and 2 ships cases in the small board, and 1 ship cases in larger boards.</p>
+
+</body>
+
+</html>

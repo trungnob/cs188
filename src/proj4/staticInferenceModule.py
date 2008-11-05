@@ -61,6 +61,7 @@ class ExactStaticInferenceModule(StaticInferenceModule):
             valueOfSensor= self.ValueOfSensorReadingGivenGhostPosition(eachGhost, eachObservation)
             #print eachGhost,"blah ",eachObservation,"has ",valueOfSensor
             p_eachGhost *= valueOfSensor
+        if p_eachGhost==0: continue
         NewDistributions.setCount(eachGhost, p_eachGhost)
    
     NewDistributions = normalize(NewDistributions)
