@@ -203,7 +203,6 @@ class StaticKeyboardAgent(StaticGhostbusterAgent):
   def getAction(self):
     return self.actionSelector.getAction()
 
-
 class StaticVPIAgent(StaticGhostbusterAgent):
   """
   Computer-controlled ghostbuster agent.
@@ -229,40 +228,34 @@ class StaticVPIAgent(StaticGhostbusterAgent):
     return expectedCounts 
    
   def getAction(self):
-   
-    utilityGain = util.Counter()
+    diffUtility = util.Counter()
     observations = self.observations
     expectedUtilities = self.getExpectedCounts(observations)
-    currentBestEU, currentBestBustingOptions = maxes(expectedUtilities)
+    maxCurrentEU, maxCurrentBustingOptions = maxes(expectedUtilities)
     for location in self.game.getLocations():
       if location in observations :   continue
-      expectedNewMEU = 0
-      p_Reading_given_observations = self.inferenceModule.getReadingDistributionGivenObservations(observations, location) 
-      for reading in Readings.getReadings():
-        outcomeProbability = p_Reading_given_observations.getCount(reading)
-        if outcomeProbability == 0.0: continue
-        newObservations = dict(observations)
-        newObservations[location] = reading
-        outcomeExpectedUtilities = self.getExpectedCounts(newObservations)
-        outcomeBestEU, outcomeBestActions = maxes(outcomeExpectedUtilities)
-        expectedNewMEU += outcomeBestEU * outcomeProbability
-      utilityGain[location] = expectedNewMEU - currentBestEU 
-    bestGain, bestSensorLocations = maxes(utilityGain)
-    
-    if bestGain > 0:
-         Return=Actions.makeSensingAction(random.choice(bestSensorLocations))
+      nextMEU = 0
+      newReadingDistrubution = self.inferenceModule.getReadingDistributionGivenObservations(observations, location) 
+      for newReading in Readings.getReadings():
+        newReadingProbability = newReadingDistrubution.getCount(newReading)
+        if newReadingProbability == 0.0: continue
+        oldReading=None
+        if location in observations.keys():
+            oldReading = observations[location]
+        observations[location] = newReading    
+        testBestEU, testBestActions = maxes(self.getExpectedCounts(observations))
+        nextMEU += testBestEU * newReadingProbability
+        if oldReading!=None: 
+            observation[location] = oldReading
+        else:
+            observations.pop(location)
+      diffUtility[location] = nextMEU - maxCurrentEU 
+    maxGain, maxSensorLocations = maxes(diffUtility)
+    if maxGain > 0:
+         Return=Actions.makeSensingAction(random.choice(maxSensorLocations))
     else:
-         Return=Actions.makeBustingAction(random.choice( currentBestBustingOptions))
-#    print "Utility Gain" , utilityGain
-#    print "Best Sensor Location:" ,bestSensorLocations
-#    print "Best Busting Options:" , currentBestBustingOptions
-#    print Return
-#    self.game.display.pauseGUI()     
-   
+         Return=Actions.makeBustingAction(random.choice( maxCurrentBustingOptions))
     return Return
-
-
-
     
 class DynamicGhostbusterAgent(GhostbusterAgent):
   """
