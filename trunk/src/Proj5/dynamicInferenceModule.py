@@ -54,7 +54,9 @@ class ExactDynamicInferenceModule(DynamicInferenceModule):
     """
     Initialize the agent's beliefs to the game's prior over tuples.
     """
+    
     self.beliefs = Counter(self.game.getInitialDistribution())
+    print self.beliefs
     
   def observe(self, observation):
     """
@@ -126,7 +128,18 @@ class ApproximateDynamicInferenceModule(DynamicInferenceModule):
     """
     
     "*** YOUR CODE HERE ***"    
-    pass
+    self.beliefs=Counter(self.game.getInitialDistribution())
+    print self.beliefs
+    self.particles=Counter()
+#    t=sampleMultiple(self.game.getInitialDistribution(), 100000)
+    a=self.beliefs.keys()
+    print len(a)
+
+    for i in range(self.numParticles):
+        print i
+        self.particles.incrementCount(sample(self.beliefs), 1)
+    print self.particles
+    
     
     
   def observe(self, observation):
@@ -138,7 +151,17 @@ class ApproximateDynamicInferenceModule(DynamicInferenceModule):
     """
     
     "*** YOUR CODE HERE ***"    
-    pass
+    observationPosition, ReadingSensor =observation
+    for eachGhostTuple in self.beliefs.keys():
+        Pe1X=self.game.getReadingDistributionGivenGhostTuple(eachGhostTuple, observationPosition).getCount(ReadingSensor)
+        PXe=self.beliefs.getCount(eachGhostTuple)
+        if (Pe1X*PXe==0):
+            self.beliefs.pop(eachGhostTuple)   
+    self.beliefs=util.normalize(self.beliefs)
+    self.particles=Counter()
+    for i in range(100):
+        self.particles.incrementCount(sample(self.beliefs), 1)                            
+    
 
 
   def elapseTime(self):
@@ -148,7 +171,11 @@ class ApproximateDynamicInferenceModule(DynamicInferenceModule):
     """    
 
     "*** YOUR CODE HERE ***"    
-    pass
+    for i in self.particles.keys() :
+        num = self.particles.getCount(i)
+        self.particles.incrementCount(i, -num)
+        for j in range(num):
+            self.particles.incrementCount(sample(self.game.getGhostTupleDistributionGivenPreviousGhostTuple(i)), 1)
 
     
   def getBeliefDistribution(self):
@@ -160,6 +187,9 @@ class ApproximateDynamicInferenceModule(DynamicInferenceModule):
     over these missing tuples will be treated as zero by the GUI.
     """
     
-    "*** YOUR CODE HERE ***"    
+    "*** YOUR CODE HERE ***" 
+    print self.particles   
+    beliefs=(normalize(self.particles))
+    return beliefs 
     pass
     
