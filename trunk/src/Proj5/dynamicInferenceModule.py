@@ -56,7 +56,7 @@ class ExactDynamicInferenceModule(DynamicInferenceModule):
     """
     
     self.beliefs = Counter(self.game.getInitialDistribution())
-    print self.beliefs
+    
     
   def observe(self, observation):
     """
@@ -129,16 +129,21 @@ class ApproximateDynamicInferenceModule(DynamicInferenceModule):
     
     "*** YOUR CODE HERE ***"    
     self.beliefs=Counter(self.game.getInitialDistribution())
-    print self.beliefs
     self.particles=Counter()
 #    t=sampleMultiple(self.game.getInitialDistribution(), 100000)
-    a=self.beliefs.keys()
-    print len(a)
-
+    p_Ghosts_given_observations = self.game.getInitialDistribution()
+    expectedCounts = Counter()
+    for ghosts in p_Ghosts_given_observations.keys():
+      probability = p_Ghosts_given_observations[ghosts]
+      for ghost in ghosts:
+        expectedCounts.incrementCount(ghost, probability)
+    a=expectedCounts.keys()
+    expectedCounts=normalize(expectedCounts)
     for i in range(self.numParticles):
-        print i
-        self.particles.incrementCount(sample(self.beliefs), 1)
-    print self.particles
+        a=list()
+        for j in range(self.game.getNumGhosts()):
+            a.append(sample(expectedCounts))
+        self.particles.incrementCount(tuple(a), 1) 
     
     
     
@@ -152,15 +157,29 @@ class ApproximateDynamicInferenceModule(DynamicInferenceModule):
     
     "*** YOUR CODE HERE ***"    
     observationPosition, ReadingSensor =observation
-    for eachGhostTuple in self.beliefs.keys():
+    beliefs=(normalize(self.particles))
+    i=0
+    for eachGhostTuple in beliefs.keys():
+        i+=1
         Pe1X=self.game.getReadingDistributionGivenGhostTuple(eachGhostTuple, observationPosition).getCount(ReadingSensor)
-        PXe=self.beliefs.getCount(eachGhostTuple)
+        PXe=beliefs.getCount(eachGhostTuple)
         if (Pe1X*PXe==0):
-            self.beliefs.pop(eachGhostTuple)   
-    self.beliefs=util.normalize(self.beliefs)
+            beliefs.pop(eachGhostTuple)   
+    beliefs=util.normalize(beliefs)
+    #update particles 
     self.particles=Counter()
-    for i in range(100):
-        self.particles.incrementCount(sample(self.beliefs), 1)                            
+    expectedCounts = Counter()
+    for ghosts in beliefs.keys():
+      probability = beliefs[ghosts]
+      for ghost in ghosts:
+        expectedCounts.incrementCount(ghost, probability)
+    expectedCounts=normalize(expectedCounts)
+    a= tuple();
+    for i in range(self.numParticles):
+        a=list()
+        for j in range(self.game.getNumGhosts()):
+            a.append(sample(expectedCounts))
+        self.particles.incrementCount(tuple(a), 1)                            
     
 
 
@@ -187,8 +206,7 @@ class ApproximateDynamicInferenceModule(DynamicInferenceModule):
     over these missing tuples will be treated as zero by the GUI.
     """
     
-    "*** YOUR CODE HERE ***" 
-    print self.particles   
+    "*** YOUR CODE HERE ***"    
     beliefs=(normalize(self.particles))
     return beliefs 
     pass
