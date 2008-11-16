@@ -66,10 +66,22 @@ class ExactDynamicInferenceModule(DynamicInferenceModule):
     Provided implementation is broken.
     """
 
-    "*** YOUR CODE HERE ***"    
-    pass
+    "*** YOUR CODE HERE ***"
+    observationPosition, ReadingSensor =observation
+    
+    for eachGhostTuple in self.beliefs.keys():
+        Pe1X=self.game.getReadingDistributionGivenGhostTuple(eachGhostTuple, observationPosition).getCount(ReadingSensor)
+        PXe=self.beliefs.getCount(eachGhostTuple)
+        self.beliefs.setCount(eachGhostTuple, Pe1X*PXe)   
+    self.beliefs=util.normalize(self.beliefs)    
+        
+   # pass
  
-
+  def ValueOfSensorReadingGivenGhostPosition(self,Ghost,Observation):
+       sensorLocation, sensorReading = Observation#Reading = Green , Blue
+       Distribution_ReadingSensor_ghostPosition = self.game.getReadingDistributionGivenGhostTuple(Ghost, sensorLocation)
+       p_Sensor_ghostPostion = Distribution_ReadingSensor_ghostPosition.getCount(sensorReading)
+       return p_Sensor_ghostPostion
     
   def elapseTime(self):
     """
