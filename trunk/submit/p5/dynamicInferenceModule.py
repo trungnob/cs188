@@ -73,8 +73,9 @@ class ExactDynamicInferenceModule(DynamicInferenceModule):
     for eachGhostTuple in self.beliefs.keys():
         Pe1X=self.game.getReadingDistributionGivenGhostTuple(eachGhostTuple, observationPosition).getCount(ReadingSensor)
         PXe=self.beliefs.getCount(eachGhostTuple)
-        if (Pe1X*PXe==0):
-            self.beliefs.pop(eachGhostTuple)   
+#        if (Pe1X*PXe==0):
+#            self.beliefs.pop(eachGhostTuple)
+        self.beliefs.setCount(eachGhostTuple,Pe1X*PXe )   
     self.beliefs=util.normalize(self.beliefs)    
     
 
