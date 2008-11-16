@@ -71,7 +71,7 @@ by introducing you to the game objects and command line options.
 
 # game settings
 layout = Layout((2, 2))
-numghosts = 1
+numghosts = 2
 sensors = Sensors(sensorDistributions.deterministicSensorReadingDistribution)
 #sensors = Sensors(sensorDistributions.noisySensorReadingDistribution)
 motiontype = 'basic'
