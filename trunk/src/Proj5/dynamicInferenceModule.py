@@ -87,8 +87,6 @@ class ExactDynamicInferenceModule(DynamicInferenceModule):
     """
 
     "*** YOUR CODE HERE ***"
-    temp=0
-    a=self.beliefs.keys()
     tempCounter=Counter(self.beliefs)
     for eachKey in self.game.getGhostTuples():
         temp=0
