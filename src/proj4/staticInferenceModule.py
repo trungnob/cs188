@@ -59,7 +59,6 @@ class ExactStaticInferenceModule(StaticInferenceModule):
         p_eachGhost = PreviousDistrubutions.getCount(eachGhost)
         for eachObservation in observations.items():
             valueOfSensor= self.ValueOfSensorReadingGivenGhostPosition(eachGhost, eachObservation)
-            #print eachGhost,"blah ",eachObservation,"has ",valueOfSensor
             p_eachGhost *= valueOfSensor
         if p_eachGhost==0: continue
         NewDistributions.setCount(eachGhost, p_eachGhost)
@@ -67,7 +66,7 @@ class ExactStaticInferenceModule(StaticInferenceModule):
     NewDistributions = normalize(NewDistributions)
     return NewDistributions    
   def ValueOfSensorReadingGivenGhostPosition(self,Ghost,Observation):
-       sensorLocation, sensorReading = Observation#Reading = Green , Blue
+       sensorLocation, sensorReading = Observation
        Distribution_ReadingSensor_ghostPosition = self.game.getReadingDistributionGivenGhostTuple(Ghost, sensorLocation)
        p_Sensor_ghostPostion = Distribution_ReadingSensor_ghostPosition.getCount(sensorReading)
        return p_Sensor_ghostPostion
