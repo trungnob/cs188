@@ -21,7 +21,7 @@ class ValueIterationAgent(AbstractValueEstimationAgent):
       Some useful mdp methods you will use:
           mdp.getStates()
           mdp.getPossibleActions(state)
-          mdp.getTransitionStatesAndProbs(state, action)
+          mdp.getTsitionStatesAndProbs(state, action)
           mdp.getReward(state, action, nextState)
     """
     self.mdp = mdp
@@ -56,7 +56,6 @@ class ValueIterationAgent(AbstractValueEstimationAgent):
       Return the value of the state 
       (after the indicated number of value iteration passes).      
     """
-    "*** YOUR CODE HERE ***"
     return self.oldV.getCount(state)
 
   def getQValue(self, state, action):
