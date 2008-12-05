@@ -60,8 +60,80 @@ def enhancedFeatureExtractorDigit(datum):
   ##
   """
   features =  basicFeatureExtractorDigit(datum)
-
-  # YOUR CODE HERE TO IMPROVE FEATURES! 
+  numHorizQuads = 10
+  numVertQuads = 10
+  quadSize = (DIGIT_DATUM_WIDTH/numHorizQuads)*((DIGIT_DATUM_HEIGHT/numVertQuads))
+  lastx = 0
+  for horiz in range (1, numHorizQuads+1):
+      lasty = 0
+      for vert in range (1, numVertQuads+1):
+          numPixels = 0
+          for x in range(lastx, lastx+DIGIT_DATUM_WIDTH/numHorizQuads):
+              for y in range(lasty, lasty+DIGIT_DATUM_HEIGHT/numVertQuads):
+                  if datum.getPixel(x, y) > 0:
+                      numPixels += 1
+          lasty += DIGIT_DATUM_HEIGHT/numVertQuads
+          if numPixels > (quadSize/2):
+              features[featureNumber] = 1
+          else:
+              features[featureNumber] = 0
+          featureNumber += 1
+          
+      lastx += DIGIT_DATUM_WIDTH/numHorizQuads
+  
+  """#is the number of attached pixels in any column greater than 2/3
+  maxNumContig = 0
+  for x in range(DIGIT_DATUM_WIDTH):
+      numContig = 0
+      for y in range(DIGIT_DATUM_HEIGHT):
+          if datum.getPixel(x, y) > 0:
+              numContig += 1
+              if (numContig > maxNumContig):
+                  maxNumContig = numContig
+          else:
+              numContig = 0
+  if maxNumContig > (2*DIGIT_DATUM_HEIGHT/3):
+      features[featureNumber] = 1
+  else:
+      features[featureNumber] = 0
+  featureNumber += 1"""
+      
+      
+  #for each column, count how many contiguous groups there are
+  for x in range(DIGIT_DATUM_WIDTH):
+      numContig = 0
+      numPixels = 0
+      for y in range(DIGIT_DATUM_HEIGHT):
+          if datum.getPixel(x, y) > 0 and numPixels == 0:
+              numContig += 1
+              numPixels += 1
+          else:
+              numPixels = 0
+              
+      for k in range(4):
+          if numContig == k:
+              features[featureNumber] = 1
+          else:
+              features[featureNumber] = 0
+          featureNumber+= 1   
+      
+  #for each row, count how many contiguous groups there are
+  for y in range(DIGIT_DATUM_HEIGHT):
+      numContig = 0
+      numPixels = 0
+      for x in range(DIGIT_DATUM_WIDTH):
+          if datum.getPixel(x, y) > 0 and numPixels == 0:
+              numContig += 1
+              numPixels += 1
+          else:
+              numPixels = 0
+      for k in range(4):
+          if numContig == k:
+              features[featureNumber] = 1
+          else:
+              features[featureNumber] = 0
+          featureNumber+= 1                      
+           
 
   return features
 

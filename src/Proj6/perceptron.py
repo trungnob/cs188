@@ -34,6 +34,10 @@ class PerceptronClassifier:
       print "Starting iteration ", iteration, "..."
       for i in range(len(trainingData)):
           ## YOUR CODE HERE
+          guess = self.classify( [trainingData[i]]) [0]
+          if trainingLabels[i] != guess:
+              self.weights[guess] = self.weights[guess].__sub__(trainingData[i])
+              self.weights[trainingLabels[i]] = self.weights[trainingLabels[i]].__add__(trainingData[i])
           pass
     
   def classify(self, data ):
@@ -67,6 +71,30 @@ class PerceptronClassifier:
     featuresOdds = []
 
     ## YOUR CODE HERE
-
+    weights1 = util.Counter(self.weights[class1].copy())
+    weights2 = util.Counter(self.weights[class2].copy())
+    
+    for i in range (0, 100):
+        max1 = weights1.argMax()
+        max2 = weights2.argMax()
+        featuresClass1.append(max1)
+        featuresClass2.append(max2)
+        weights1.pop(max1)
+        weights2.pop(max2)
+        
+    weights1 = util.Counter(self.weights[class1].copy())
+    weights2 = util.Counter(self.weights[class2].copy())
+    
+    for i in range (0, 100):
+        weightKeys = weights1.keys()
+        if len(weightKeys) > 0:
+            maxDiff = 0
+            maxFeat = weights1[weightKeys[0]]
+            for feature in weightKeys:
+                if (weights1[feature] - weights2[feature]) > maxDiff:
+                    maxFeat = feature
+                    maxDiff = weights1[feature] - weights2[feature]
+            weights1.pop(maxFeat)
+            featuresOdds.append(maxFeat)
     return featuresClass1,featuresClass2,featuresOdds
 
