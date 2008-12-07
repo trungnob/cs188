@@ -81,9 +81,7 @@ class MiraClassifier:
             
     self.C = maxC
     self.weights = maxWeights
-    return maxC    
-    # YOUR CODE HERE
-
+    return maxC
 
   def classify(self, data ):
     """

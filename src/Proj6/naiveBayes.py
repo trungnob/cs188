@@ -59,8 +59,12 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
     You should also keep track of the priors and conditional probabilities for
     further usage in calculateLogJointProbabilities method
     """
+    self.probs = util.Counter()
+    self.condProbs = util.Counter()
     for i in range (0,len(trainingData) ):
-        self.probs[trainingLabels[i]] += 1.00
+    #for data in trainingData:
+        #self.probs[trainingLabels[i]] += 1.00
+        self.probs.incrementCount(trainingLabels[i], 1.00)
         for data in trainingData[i].keys():
             if trainingData[i][data] == 0:
                 currCondProb = self.condProbs[trainingLabels[i]][0]
@@ -68,6 +72,8 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
             else:
                 currCondProb = self.condProbs[trainingLabels[i]][1]
                 currCondProb[data] = currCondProb.getCount(data) + 1.00
+            #currCondProb[data] = currCondProb.getCount(data) + trainingData[i][data]*1.00
+    
     
     """at this point, self.probs[i] is the count of number of times we saw label i in the
     training set, and self.condProbs[i][val][j] is the number of times that data j was of value val"""
@@ -115,6 +121,7 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
     self.probs = maxProbs
     self.condProbs = maxCondProbs
     return self.k
+
     
   def classify(self, testData):
     """
@@ -136,6 +143,7 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
     Each log-probability should be stored in the log-joint counter, e.g.    
     logJoint['face'] = <Estimate of log( P(Label = face, datum) )>
     """
+    logJoint = util.Counter()
     for i in self.legalLabels:
         label = self.legalLabels[i]
         condProbs = self.condProbs[label]
@@ -147,8 +155,6 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
                 logJoint[label] += math.log(condProbs[1][data])
     
     return logJoint
-    ## YOUR CODE HERE
-    # example of type of values: logJoint["SomeLabel"] = math.log(1e-301) 
   
   def findHighOddsFeatures(self, class1, class2):
     """
@@ -188,6 +194,7 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
                     maxDiff = weights1[feature] - weights2[feature]
             weights1.pop(maxFeat)
             featuresOdds.append(maxFeat)
+
     return featuresClass1,featuresClass2,featuresOdds
     
 

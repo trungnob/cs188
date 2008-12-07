@@ -15,14 +15,12 @@ DIGIT_DATUM_HEIGHT=28
 FACE_DATUM_WIDTH=60
 FACE_DATUM_HEIGHT=70
 
-
 def basicFeatureExtractorDigit(datum):
   """
   Returns a set of pixel features indicating whether
   each pixel in the provided datum is white (0) or gray/black (1)
   """
   a = datum.getPixels()
-
   features = util.Counter()
   for x in range(DIGIT_DATUM_WIDTH):
     for y in range(DIGIT_DATUM_HEIGHT):
