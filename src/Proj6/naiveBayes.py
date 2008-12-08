@@ -104,51 +104,8 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
         if currentProb > currentMaxProb:
             currentMaxProb = currentProb
             self.k = k
+    print self.condProbs[0][1]
     return self.k
-    
-#    for i in range (0,len(trainingLabels)):
-#        self.probs[trainingLabels[i]] += 1.00
-#        for data in trainingData[i].keys():
-#            if trainingData[i].getCount(data) == 0:
-#                self.condProbs[trainingLabels[i]][0].incrementCount(data, 1.00)
-#            else:
-#                self.condProbs[trainingLabels[i]][1].incrementCount(data, 1.00)
-#    maxk = kgrid[0]
-#    maxProb = 0.0
-#    oldProbs = self.probs
-#    maxProbs = []
-#    maxCondProbs = []
-#    oldCondProbs = self.condProbs
-#    numToEval = len(validationLabels)*1.0
-#    for k in kgrid:
-#        self.k = k
-#        self.condProbs = []
-#        for condProb in oldCondProbs:
-#            self.condProbs.append( (util.Counter({}), util.Counter({})) )
-#        self.probs = oldProbs.copy()
-#        for i in range (0, len(self.legalLabels)):
-#           label = self.legalLabels[i]
-#           for feature in self.features:
-#               total = oldCondProbs[label][0].getCount(feature) + oldCondProbs[label][1].getCount(feature)
-#               self.condProbs[label][0][feature] = (oldCondProbs[label][0].getCount(feature) + self.k) / (total + 2*self.k)
-#               self.condProbs[label][1][feature] = (oldCondProbs[label][1].getCount(feature) + self.k) / (total + 2*self.k)
-#           self.probs[label] = (oldProbs[label]) / (len(trainingData))
-#        guesses = self.classify(validationData)   
-#        numCorrect = 0.0
-#        for i in range (0, len(validationLabels)):
-#            if guesses[i] == validationLabels[i]:
-#                numCorrect += 1
-#        if (numCorrect/numToEval) > maxProb:
-#            maxProb = (numCorrect/numToEval)
-#            maxk = k
-#            maxProbs = self.probs
-#            maxCondProbs = self.condProbs
-#    print(maxk)
-#    self.k = maxk
-#    self.probs = maxProbs
-#    self.condProbs = maxCondProbs
-#    return self.k
-
     
   def classify(self, testData):
     """
@@ -188,27 +145,18 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
     featuresOdds -- the 100 best features for the odds ratio 
                      P(feature=on|class1)/P(feature=on|class2) 
     """
-
     featuresClass1 = []
     featuresClass2 = []
     featuresOdds = []
-    
-    weights1 = util.Counter(self.condProbs[class1].copy())
-    weights2 = util.Counter(self.condProbs[class2].copy())
-    
+    weights1 = util.Counter(self.condProbs[class1][1].copy()).sortedKeys()
+    weights2 = util.Counter(self.condProbs[class2][1].copy()).sortedKeys()
     for i in range (0, 100):
-        max1 = weights1.argMax()
-        max2 = weights2.argMax()
-        featuresClass1.append(max1)
-        featuresClass2.append(max2)
-        weights1.pop(max1)
-        weights2.pop(max2)
-        
-    weights1 = util.Counter(self.weights[class1].copy())
-    weights2 = util.Counter(self.weights[class2].copy())
-    
+        featuresClass1.append(weights1[i])
+        featuresClass2.append(weights2[i])
+    weights1 = util.Counter(self.condProbs[class1][1].copy())
+    weights2 = util.Counter(self.condProbs[class2][1].copy())
     for i in range (0, 100):
-        weightKeys = weights1.keys()
+        weightKeys = weights1.sortedKeys()
         if len(weightKeys) > 0:
             maxDiff = 0
             maxFeat = weights1[weightKeys[0]]
@@ -218,7 +166,6 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
                     maxDiff = weights1[feature] - weights2[feature]
             weights1.pop(maxFeat)
             featuresOdds.append(maxFeat)
-
     return featuresClass1,featuresClass2,featuresOdds
     
 
