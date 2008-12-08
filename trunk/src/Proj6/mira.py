@@ -45,43 +45,36 @@ class MiraClassifier:
     This method needs to return the best parameter found in the list of parameters Cgrid
     (i.e. the parameter that yeilds best accuracy for the validation dataset)
     """
-    maxC = Cgrid[0]
-    maxCorrect = -1
-    maxWeights = []
-    
     for C in Cgrid:
-        self.C = C
         self.weights = {}
         for label in self.legalLabels:
             self.weights[label] = util.Counter()
         for iteration in range(self.max_iterations):
-          print "Starting iteration ", iteration, " with C ", C, "..."
-          for i in range(len(trainingData)):
-              guess = self.classify( [trainingData[i]]) [0]
+          print "Beginning iteration ", iteration, " with C ", C, "..."
+          for i in range(0, len(trainingData)):
+              guess = self.classify([trainingData[i]]) [0]
               if trainingLabels[i] != guess:
                   factor = ((self.weights[guess].__sub__(self.weights[trainingLabels[i]]))*trainingData[i]+1)
                   if ((trainingData[i]*trainingData[i])*2) != 0:
                       factor /= ((trainingData[i]*trainingData[i])*2)
                   t = min(self.C, factor)
-                  toDiff = util.Counter(trainingData[i].copy()).multiplyAll(t)
-                  self.weights[guess] = self.weights[guess].__sub__(toDiff)
-                  self.weights[trainingLabels[i]] = self.weights[trainingLabels[i]].__add__(toDiff)
-                  
+                  differences = util.Counter(trainingData[i].copy()).multiplyAll(t)
+                  self.weights[guess] = self.weights[guess].__sub__(differences)
+                  self.weights[trainingLabels[i]] = self.weights[trainingLabels[i]].__add__(differences)
         guesses = self.classify(validationData)
-        rightSoFar = 0
-        for i in range(len(guesses)):
+        correctGuesses = 0
+        for i in range(0, len(guesses)):
             if guesses[i] == validationLabels[i]:
-                rightSoFar += 1
-                    
-        if rightSoFar > maxCorrect:
-            maxCorrect = rightSoFar
-            maxC = self.C
-            maxWeights = self.weights.copy()
+                correctGuesses += 1
                 
-            
-    self.C = maxC
-    self.weights = maxWeights
-    return maxC
+        currentMaxCorrect = -1       
+        currentMaxC = Cgrid[0]
+        currentMaxWeights = []
+        if currentMaxCorrect > currentMaxCorrect:
+            currentMaxCorrect = currentMaxCorrect
+            currentMaxC = self.C
+        self.C = currentMaxC
+    return currentMaxC
 
   def classify(self, data ):
     """
@@ -108,27 +101,18 @@ class MiraClassifier:
                      w_class1 - w_class2
 
     """
-
     featuresClass1 = []
     featuresClass2 = []
     featuresOdds = []
-    
+    weights1 = util.Counter(self.weights[class1].copy()).sortedKeys()
+    weights2 = util.Counter(self.weights[class2].copy()).sortedKeys()
+    for i in range (0, 100):
+        featuresClass1.append(weights1[i])
+        featuresClass2.append(weights2[i])
     weights1 = util.Counter(self.weights[class1].copy())
     weights2 = util.Counter(self.weights[class2].copy())
-    
     for i in range (0, 100):
-        max1 = weights1.argMax()
-        max2 = weights2.argMax()
-        featuresClass1.append(max1)
-        featuresClass2.append(max2)
-        weights1.pop(max1)
-        weights2.pop(max2)
-        
-    weights1 = util.Counter(self.weights[class1].copy())
-    weights2 = util.Counter(self.weights[class2].copy())
-    
-    for i in range (0, 100):
-        weightKeys = weights1.keys()
+        weightKeys = weights1.sortedKeys()
         if len(weightKeys) > 0:
             maxDiff = 0
             maxFeat = weights1[weightKeys[0]]
@@ -138,7 +122,6 @@ class MiraClassifier:
                     maxDiff = weights1[feature] - weights2[feature]
             weights1.pop(maxFeat)
             featuresOdds.append(maxFeat)
-
     return featuresClass1,featuresClass2,featuresOdds
 
 
