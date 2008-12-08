@@ -59,64 +59,59 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
     You should also keep track of the priors and conditional probabilities for
     further usage in calculateLogJointProbabilities method
     """
-    self.probs = util.Counter()
-    self.condProbs = util.Counter()
-    for i in range (0,len(trainingData) ):
-    #for data in trainingData:
-        #self.probs[trainingLabels[i]] += 1.00
-        self.probs.incrementCount(trainingLabels[i], 1.00)
+    self.probs = {}
+    self.condProbs = [[util.Counter()]*2]*len(self.legalLabels)
+    for label in self.legalLabels:
+        self.probs[label]=0;
+        self.condProbs[label][0]=util.Counter()
+        self.condProbs[label][1]=util.Counter()   
+    
+    for i in range (0,len(trainingData)):
+        self.probs[trainingLabels[i]] += 1.00
         for data in trainingData[i].keys():
             if trainingData[i][data] == 0:
-                currCondProb = self.condProbs[trainingLabels[i]][0]
-                currCondProb[data] = currCondProb.getCount(data) + 1.00
+                self.condProbs[trainingLabels[i]][0].incrementCount(data, 1.00)
             else:
-                currCondProb = self.condProbs[trainingLabels[i]][1]
-                currCondProb[data] = currCondProb.getCount(data) + 1.00
-            #currCondProb[data] = currCondProb.getCount(data) + trainingData[i][data]*1.00
-    
-    
+                self.condProbs[trainingLabels[i]][1].incrementCount(data, 1.00)
+    print(self.condProbs[trainingLabels[0]][0])
+    print(self.probs)
+    print "==="
     """at this point, self.probs[i] is the count of number of times we saw label i in the
     training set, and self.condProbs[i][val][j] is the number of times that data j was of value val"""
-    
     maxk = kgrid[0]
     maxProb = 0.0
     oldProbs = self.probs
     maxProbs = []
     maxCondProbs = []
     oldCondProbs = self.condProbs
-    self.condProbs = []
-    for condProb in oldCondProbs:
-        self.condProbs.append( (util.Counter({}), util.Counter({})) )
+#    self.condProbs = []
+#    for condProb in oldCondProbs:
+#        self.condProbs.append((util.Counter({}), util.Counter({})))
     numToEval = len(validationLabels)*1.0
-    
     for k in kgrid:
         self.k = k
-        
         self.condProbs = []
         for condProb in oldCondProbs:
             self.condProbs.append( (util.Counter({}), util.Counter({})) )
         self.probs = oldProbs.copy()
-        
         for i in range (0, len(self.legalLabels)):
-           label = self.legalLabels.index(i)
+           label = self.legalLabels[i]
            for feature in self.features:
                total = oldCondProbs[label][0].getCount(feature) + oldCondProbs[label][1].getCount(feature)
                self.condProbs[label][0][feature] = (oldCondProbs[label][0].getCount(feature) + self.k) / (total + 2*self.k)
                self.condProbs[label][1][feature] = (oldCondProbs[label][1].getCount(feature) + self.k) / (total + 2*self.k)
            self.probs[label] = (oldProbs[label]) / (len(trainingData))
-        
         guesses = self.classify(validationData)   
         numCorrect = 0.0
         for i in range (0, len(validationLabels)):
             if guesses[i] == validationLabels[i]:
                 numCorrect += 1
-                
         if (numCorrect/numToEval) > maxProb:
             maxProb = (numCorrect/numToEval)
             maxk = k
             maxProbs = self.probs
             maxCondProbs = self.condProbs
-            
+    print(maxk)
     self.k = maxk
     self.probs = maxProbs
     self.condProbs = maxCondProbs
@@ -153,7 +148,6 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
                 logJoint[label] += math.log(condProbs[0][data])
             else:
                 logJoint[label] += math.log(condProbs[1][data])
-    
     return logJoint
   
   def findHighOddsFeatures(self, class1, class2):
