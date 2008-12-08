@@ -171,15 +171,13 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
     logJoint['face'] = <Estimate of log( P(Label = face, datum) )>
     """
     logJoint = util.Counter()
-    for i in self.legalLabels:
-        label = self.legalLabels[i]
-        condProbs = self.condProbs[label]
+    for label in self.legalLabels:
         logJoint[label] = math.log(self.Probs[label])
         for data in datum.keys():
             if datum[data] == 0:
-                logJoint[label] += math.log(condProbs[0][data])
+                logJoint[label] += math.log(self.condProbs[label][0][data])
             else:
-                logJoint[label] += math.log(condProbs[1][data])
+                logJoint[label] += math.log(self.condProbs[label][1][data])
     return logJoint
   
   def findHighOddsFeatures(self, class1, class2):
