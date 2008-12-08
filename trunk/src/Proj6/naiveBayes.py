@@ -15,7 +15,18 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
     self.type = "naivebayes"
     self.k = 1 # this is the smoothing parameter
     self.automaticTuning = False # Flat for automatic tuning of the parameters
-    
+    self.weights = {}
+    for label in self.legalLabels:
+      self.weights[label] = util.Counter() # this is the data-structure you should use
+    self.Counts = {}
+    self.condCounts = {}
+    for label in self.legalLabels:
+        self.condCounts[label] = [util.Counter(), util.Counter()]
+    for label in self.legalLabels:
+        self.Counts[label]=0;
+        self.condCounts[label][0]=util.Counter()
+        self.condCounts[label][1]=util.Counter()   
+        
   def setSmoothing(self, k):
     """
     This is used by the main method to change the smoothing parameter before training.
@@ -59,65 +70,84 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
     You should also keep track of the priors and conditional probabilities for
     further usage in calculateLogJointProbabilities method
     """
-    self.probs = {}
+    for i in range (0,len(trainingLabels)):
+        self.Counts[trainingLabels[i]] += 1.00
+        for data in trainingData[i].keys():
+            if trainingData[i].getCount(data) == 0:
+                self.condCounts[trainingLabels[i]][0].incrementCount(data, 1.00)
+            else:
+                self.condCounts[trainingLabels[i]][1].incrementCount(data, 1.00)
+    self.Probs = {}
     self.condProbs = {}
+    currentMaxProb = 0.0
+    currentMaxProbs = []
+    currentMaxCondProbs = []
     for label in self.legalLabels:
         self.condProbs[label] = [util.Counter(), util.Counter()]
     for label in self.legalLabels:
-        self.probs[label]=0;
+        self.Probs[label]=0;
         self.condProbs[label][0]=util.Counter()
         self.condProbs[label][1]=util.Counter()   
-    
-    for i in range (0,len(trainingLabels)):
-        self.probs[trainingLabels[i]] += 1.00
-        for data in trainingData[i].keys():
-            if trainingData[i].getCount(data) == 0:
-                self.condProbs[trainingLabels[i]][0].incrementCount(data, 1.00)
-            else:
-                self.condProbs[trainingLabels[i]][1].incrementCount(data, 1.00)
-    print(self.condProbs[trainingLabels[0]][0])
-    print(self.probs)
-    print "==="
-    """at this point, self.probs[i] is the count of number of times we saw label i in the
-    training set, and self.condProbs[i][val][j] is the number of times that data j was of value val"""
-    maxk = kgrid[0]
-    maxProb = 0.0
-    oldProbs = self.probs
-    maxProbs = []
-    maxCondProbs = []
-    oldCondProbs = self.condProbs
-#    self.condProbs = []
-#    for condProb in oldCondProbs:
-#        self.condProbs.append((util.Counter({}), util.Counter({})))
-    numToEval = len(validationLabels)*1.0
     for k in kgrid:
-        self.k = k
-        self.condProbs = []
-        for condProb in oldCondProbs:
-            self.condProbs.append( (util.Counter({}), util.Counter({})) )
-        self.probs = oldProbs.copy()
-        for i in range (0, len(self.legalLabels)):
-           label = self.legalLabels[i]
-           for feature in self.features:
-               total = oldCondProbs[label][0].getCount(feature) + oldCondProbs[label][1].getCount(feature)
-               self.condProbs[label][0][feature] = (oldCondProbs[label][0].getCount(feature) + self.k) / (total + 2*self.k)
-               self.condProbs[label][1][feature] = (oldCondProbs[label][1].getCount(feature) + self.k) / (total + 2*self.k)
-           self.probs[label] = (oldProbs[label]) / (len(trainingData))
-        guesses = self.classify(validationData)   
-        numCorrect = 0.0
-        for i in range (0, len(validationLabels)):
+        for label in self.legalLabels:
+            for feature in self.features:
+                sum = self.condCounts[label][0].getCount(feature) + self.condCounts[label][1].getCount(feature)
+                self.condProbs[label][0][feature] = (self.condCounts[label][0].getCount(feature) + self.k) / (sum + 2.0*self.k)
+                self.condProbs[label][1][feature] = (self.condCounts[label][1].getCount(feature) + self.k) / (sum + 2.0*self.k)
+            self.Probs[label] = (self.Counts[label]) / (len(trainingLabels))
+        guesses = self.classify(validationData)
+        correctGuesses = 0.0
+        for i in range(0, len(validationLabels)):
             if guesses[i] == validationLabels[i]:
-                numCorrect += 1
-        if (numCorrect/numToEval) > maxProb:
-            maxProb = (numCorrect/numToEval)
-            maxk = k
-            maxProbs = self.probs
-            maxCondProbs = self.condProbs
-    print(maxk)
-    self.k = maxk
-    self.probs = maxProbs
-    self.condProbs = maxCondProbs
+                correctGuesses += 1.0
+        currentProb = (correctGuesses/len(validationLabels)*1.0)
+        if currentProb > currentMaxProb:
+            currentMaxProb = currentProb
+            self.k = k
     return self.k
+    
+#    for i in range (0,len(trainingLabels)):
+#        self.probs[trainingLabels[i]] += 1.00
+#        for data in trainingData[i].keys():
+#            if trainingData[i].getCount(data) == 0:
+#                self.condProbs[trainingLabels[i]][0].incrementCount(data, 1.00)
+#            else:
+#                self.condProbs[trainingLabels[i]][1].incrementCount(data, 1.00)
+#    maxk = kgrid[0]
+#    maxProb = 0.0
+#    oldProbs = self.probs
+#    maxProbs = []
+#    maxCondProbs = []
+#    oldCondProbs = self.condProbs
+#    numToEval = len(validationLabels)*1.0
+#    for k in kgrid:
+#        self.k = k
+#        self.condProbs = []
+#        for condProb in oldCondProbs:
+#            self.condProbs.append( (util.Counter({}), util.Counter({})) )
+#        self.probs = oldProbs.copy()
+#        for i in range (0, len(self.legalLabels)):
+#           label = self.legalLabels[i]
+#           for feature in self.features:
+#               total = oldCondProbs[label][0].getCount(feature) + oldCondProbs[label][1].getCount(feature)
+#               self.condProbs[label][0][feature] = (oldCondProbs[label][0].getCount(feature) + self.k) / (total + 2*self.k)
+#               self.condProbs[label][1][feature] = (oldCondProbs[label][1].getCount(feature) + self.k) / (total + 2*self.k)
+#           self.probs[label] = (oldProbs[label]) / (len(trainingData))
+#        guesses = self.classify(validationData)   
+#        numCorrect = 0.0
+#        for i in range (0, len(validationLabels)):
+#            if guesses[i] == validationLabels[i]:
+#                numCorrect += 1
+#        if (numCorrect/numToEval) > maxProb:
+#            maxProb = (numCorrect/numToEval)
+#            maxk = k
+#            maxProbs = self.probs
+#            maxCondProbs = self.condProbs
+#    print(maxk)
+#    self.k = maxk
+#    self.probs = maxProbs
+#    self.condProbs = maxCondProbs
+#    return self.k
 
     
   def classify(self, testData):
@@ -144,7 +174,7 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
     for i in self.legalLabels:
         label = self.legalLabels[i]
         condProbs = self.condProbs[label]
-        logJoint[label] = math.log(self.probs[label])
+        logJoint[label] = math.log(self.Probs[label])
         for data in datum.keys():
             if datum[data] == 0:
                 logJoint[label] += math.log(condProbs[0][data])
@@ -165,8 +195,8 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
     featuresClass2 = []
     featuresOdds = []
     
-    weights1 = util.Counter(self.weights[class1].copy())
-    weights2 = util.Counter(self.weights[class2].copy())
+    weights1 = util.Counter(self.condProbs[class1].copy())
+    weights2 = util.Counter(self.condProbs[class2].copy())
     
     for i in range (0, 100):
         max1 = weights1.argMax()
