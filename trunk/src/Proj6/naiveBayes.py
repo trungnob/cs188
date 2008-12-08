@@ -60,16 +60,18 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
     further usage in calculateLogJointProbabilities method
     """
     self.probs = {}
-    self.condProbs = [[util.Counter()]*2]*len(self.legalLabels)
+    self.condProbs = {}
+    for label in self.legalLabels:
+        self.condProbs[label] = [util.Counter(), util.Counter()]
     for label in self.legalLabels:
         self.probs[label]=0;
         self.condProbs[label][0]=util.Counter()
         self.condProbs[label][1]=util.Counter()   
     
-    for i in range (0,len(trainingData)):
+    for i in range (0,len(trainingLabels)):
         self.probs[trainingLabels[i]] += 1.00
         for data in trainingData[i].keys():
-            if trainingData[i][data] == 0:
+            if trainingData[i].getCount(data) == 0:
                 self.condProbs[trainingLabels[i]][0].incrementCount(data, 1.00)
             else:
                 self.condProbs[trainingLabels[i]][1].incrementCount(data, 1.00)
