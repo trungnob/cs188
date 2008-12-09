@@ -60,75 +60,6 @@ def enhancedFeatureExtractorDigit(datum):
   import math
   features =  basicFeatureExtractorDigit(datum)
   featureNumber = 0
-#  numHorizQuads = 10
-#  numVertQuads = 10
-#  quadSize = (DIGIT_DATUM_WIDTH/numHorizQuads)*((DIGIT_DATUM_HEIGHT/numVertQuads))
-#  lastx = 0
-#  for horiz in range (1, numHorizQuads+1):
-#      lasty = 0
-#      for vert in range (1, numVertQuads+1):
-#          numPixels = 0
-#          for x in range(lastx, lastx+DIGIT_DATUM_WIDTH/numHorizQuads):
-#              for y in range(lasty, lasty+DIGIT_DATUM_HEIGHT/numVertQuads):
-#                  if datum.getPixel(x, y) > 0:
-#                      numPixels += 1
-#          lasty += DIGIT_DATUM_HEIGHT/numVertQuads
-#          if numPixels > (quadSize/2):
-#              features[featureNumber] = 1
-#          else:
-#              features[featureNumber] = 0
-#          featureNumber += 1
-#          
-#      lastx += DIGIT_DATUM_WIDTH/numHorizQuads
-#  
-#  """#is the number of attached pixels in any column greater than 2/3
-#  maxNumContig = 0
-#  for x in range(DIGIT_DATUM_WIDTH):
-#      numContig = 0
-#      for y in range(DIGIT_DATUM_HEIGHT):
-#          if datum.getPixel(x, y) > 0:
-#              numContig += 1
-#              if (numContig > maxNumContig):
-#                  maxNumContig = numContig
-#          else:
-#              numContig = 0
-#  if maxNumContig > (2*DIGIT_DATUM_HEIGHT/3):
-#      features[featureNumber] = 1
-#  else:
-#      features[featureNumber] = 0
-#  featureNumber += 1"""
-    #-----starting bernard' feature
-  halfWidth =  math.floor(DIGIT_DATUM_WIDTH/2)
-  halfHeight = math.floor(DIGIT_DATUM_HEIGHT/2)
-  numSymPixels = 0
-  for y in range(0, DIGIT_DATUM_HEIGHT):
-      for x in range(int(halfWidth)):
-          # differences in intensity of the pixels after you fold the picture horizontally, like this -> [|]
-          if math.fabs(datum.getPixel(x, y) - datum.getPixel(DIGIT_DATUM_WIDTH-x-1, y)) < 2:
-              numSymPixels += 1
-      if numSymPixels > math.floor(halfWidth/3):
-          features[featureNumber] = 1
-      else:
-          features[featureNumber] = 0
-      featureNumber += 1
-      numSymPixels = 0
-  for x in range(DIGIT_DATUM_WIDTH):
-      for y in range(int(halfHeight)):
-          # differences in intensity of the pixels after you fold the picture vertically, like this -> [-]
-          if math.fabs(datum.getPixel(x, y) - datum.getPixel(x, DIGIT_DATUM_HEIGHT-1-y)) < 2:
-              numSymPixels += 1
-      if numSymPixels > math.floor(halfHeight/3):
-          features[featureNumber] = 1
-      else:
-          features[featureNumber] = 0
-      featureNumber += 1
-      numSymPixels = 0  
-      
-      
-      
- #== end of bernard's feature
- 
-  
   for x in range(DIGIT_DATUM_WIDTH):
       numContBlocks = 0
       density=datum.getPixel(x,0);
@@ -142,7 +73,6 @@ def enhancedFeatureExtractorDigit(datum):
           else:
               features[featureNumber] = 0
       featureNumber+=1
-      
   for y in range(DIGIT_DATUM_HEIGHT):
       numContBlocks = 0
       density=datum.getPixel(0,y);
@@ -155,7 +85,29 @@ def enhancedFeatureExtractorDigit(datum):
               features[featureNumber] = 1
           else:
               features[featureNumber] = 0
-          featureNumber+= 1                   
+          featureNumber+= 1              
+  for x in range(DIGIT_DATUM_WIDTH):
+      numHoles = 0
+      b1 = 0
+      hole = 0
+      b2 = 0
+      for y in range(DIGIT_DATUM_HEIGHT):
+          if datum.getPixel(x, y) > 0 and b1 == 0:
+              b1 = 1
+          if datum.getPixel(x, y) == 0 and b1 == 1 and hole == 0:
+              hole = 1
+          if datum.getPixel(x, y) > 0 and b1 == 1 and hole == 1:
+              b2 = 1
+          if datum.getPixel(x, y) == 0 and b1 == 1 and hole == 1 and b2 == 1:
+              numHoles += 1
+              b1=0
+              hole = 0
+              b2 = 0
+          if numHoles > 0:
+              features[featureNumber] = 1
+          else:
+              features[featureNumber] = 0
+          featureNumber+=1                    
   return features
 
 def enhancedFeatureExtractorFace(datum):
