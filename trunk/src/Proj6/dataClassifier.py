@@ -57,7 +57,9 @@ def enhancedFeatureExtractorDigit(datum):
   
   ##
   """
+  import math
   features =  basicFeatureExtractorDigit(datum)
+  featureNumber = 0
   numHorizQuads = 10
   numVertQuads = 10
   quadSize = (DIGIT_DATUM_WIDTH/numHorizQuads)*((DIGIT_DATUM_HEIGHT/numVertQuads))
@@ -95,21 +97,46 @@ def enhancedFeatureExtractorDigit(datum):
   else:
       features[featureNumber] = 0
   featureNumber += 1"""
+    #-----starting bernard' feature
+  halfWidth = math.floor(DIGIT_DATUM_WIDTH/2)
+  halfHeight = math.floor(DIGIT_DATUM_HEIGHT/2)
+  numSymPixels = 0
+  symXPixelsTable = {}
+  symYPixelsTable = {}
+  for y in range(0, DIGIT_DATUM_HEIGHT):
+      for x in range(0, halfWidth):
+          # differences in intensity of the pixels after you fold the picture horizontally, like this -> [|]
+          if math.fabs(datum.getPixel(x, y) - datum.getPixel(DIGIT_DATUM_WIDTH-x-1, y)) < 3:
+              numSymPixels += 1
+      print numSymPixels
+      print '/'
+      features[featureNumber] = numSymPixels
+      featureNumber += 1
+      numSymPixels = 0
+  print "======================"
+  for x in range(DIGIT_DATUM_WIDTH):
+      for y in range(halfHeight):
+          # differences in intensity of the pixels after you fold the picture vertically, like this -> [-]
+          if math.fabs(datum.getPixel(x, y) - datum.getPixel(x, DIGIT_DATUM_HEIGHT-1-y)) < 3:
+              numSymPixels += 1
+      print numSymPixels
+      features[featureNumber] = numSymPixels
+      featureNumber += 1
+      numSymPixels = 0
       
-      
+ #== end of bernard's feature
   #for each column, count how many contiguous groups there are
   for x in range(DIGIT_DATUM_WIDTH):
-      numContig = 0
-      numPixels = 0
+      indicator = 0
+      numGroups = 0
       for y in range(DIGIT_DATUM_HEIGHT):
-          if datum.getPixel(x, y) > 0 and numPixels == 0:
-              numContig += 1
-              numPixels += 1
-          else:
-              numPixels = 0
-              
+          if datum.getPixel(x, y) > 0 and indicator == 0:
+              numGroups += 1
+              indicator = 1
+          elif datum.getPixel(x, y)==0 and indicator==1:
+              indicator = 0
       for k in range(4):
-          if numContig == k:
+          if numGroups == k:
               features[featureNumber] = 1
           else:
               features[featureNumber] = 0
@@ -131,8 +158,6 @@ def enhancedFeatureExtractorDigit(datum):
           else:
               features[featureNumber] = 0
           featureNumber+= 1                      
-           
-
   return features
 
 def enhancedFeatureExtractorFace(datum):
