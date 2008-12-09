@@ -152,13 +152,18 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
     featuresClass1 = []
     featuresClass2 = []
     featuresOdds = []
-    weights1 = util.Counter(self.condProbs[class1][1].copy()).sortedKeys()
-    weights2 = util.Counter(self.condProbs[class2][1].copy()).sortedKeys()
+    weights1 = util.Counter()
+    weights2 = util.Counter()
+    for feature, i, label in self.condProbs.keys():
+        if i==1 and label==class1:
+            weights1.setCount(feature, self.condProbs.getCount((feature, i, label)))
+        elif i==1 and label==class2:
+            weights2.setCount(feature, self.condProbs.getCount((feature, i, label)))
+    w1 = weights1.sortedKeys()
+    w2 = weights2.sortedKeys()
     for i in range (0, 100):
-        featuresClass1.append(weights1[i])
-        featuresClass2.append(weights2[i])
-    weights1 = util.Counter(self.condProbs[class1][1].copy())
-    weights2 = util.Counter(self.condProbs[class2][1].copy())
+        featuresClass1.append(w1[i])
+        featuresClass2.append(w2[i])
     for i in range (0, 100):
         weightKeys = weights1.sortedKeys()
         if len(weightKeys) > 0:
