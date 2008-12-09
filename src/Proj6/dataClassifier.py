@@ -122,9 +122,40 @@ def enhancedFeatureExtractorDigit(datum):
       else:
           features[featureNumber] = 0
       featureNumber += 1
-      numSymPixels = 0
+      numSymPixels = 0  
       
- #== end of bernard's feature       
+      
+      
+ #== end of bernard's feature
+ 
+  
+  for x in range(DIGIT_DATUM_WIDTH):
+      numContBlocks = 0
+      density=datum.getPixel(x,0);
+      for y in range(DIGIT_DATUM_HEIGHT):
+          if datum.getPixel(x, y) != density:
+                  numContBlocks+=1
+                  density=datum.getPixel(x, y)
+      for k in range(8):
+          if numContBlocks == k:
+              features[featureNumber] = 1
+          else:
+              features[featureNumber] = 0
+      featureNumber+=1
+      
+  for y in range(DIGIT_DATUM_HEIGHT):
+      numContBlocks = 0
+      density=datum.getPixel(0,y);
+      for x in range(DIGIT_DATUM_WIDTH):
+          if datum.getPixel(x, y) != density:
+                  numContBlocks+=1
+                  density=datum.getPixel(x, y)
+      for k in range(8):
+          if numContBlocks == k:
+              features[featureNumber] = 1
+          else:
+              features[featureNumber] = 0
+          featureNumber+= 1                   
   return features
 
 def enhancedFeatureExtractorFace(datum):
