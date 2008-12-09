@@ -60,104 +60,71 @@ def enhancedFeatureExtractorDigit(datum):
   import math
   features =  basicFeatureExtractorDigit(datum)
   featureNumber = 0
-  numHorizQuads = 10
-  numVertQuads = 10
-  quadSize = (DIGIT_DATUM_WIDTH/numHorizQuads)*((DIGIT_DATUM_HEIGHT/numVertQuads))
-  lastx = 0
-  for horiz in range (1, numHorizQuads+1):
-      lasty = 0
-      for vert in range (1, numVertQuads+1):
-          numPixels = 0
-          for x in range(lastx, lastx+DIGIT_DATUM_WIDTH/numHorizQuads):
-              for y in range(lasty, lasty+DIGIT_DATUM_HEIGHT/numVertQuads):
-                  if datum.getPixel(x, y) > 0:
-                      numPixels += 1
-          lasty += DIGIT_DATUM_HEIGHT/numVertQuads
-          if numPixels > (quadSize/2):
-              features[featureNumber] = 1
-          else:
-              features[featureNumber] = 0
-          featureNumber += 1
-          
-      lastx += DIGIT_DATUM_WIDTH/numHorizQuads
-  
-  """#is the number of attached pixels in any column greater than 2/3
-  maxNumContig = 0
-  for x in range(DIGIT_DATUM_WIDTH):
-      numContig = 0
-      for y in range(DIGIT_DATUM_HEIGHT):
-          if datum.getPixel(x, y) > 0:
-              numContig += 1
-              if (numContig > maxNumContig):
-                  maxNumContig = numContig
-          else:
-              numContig = 0
-  if maxNumContig > (2*DIGIT_DATUM_HEIGHT/3):
-      features[featureNumber] = 1
-  else:
-      features[featureNumber] = 0
-  featureNumber += 1"""
+#  numHorizQuads = 10
+#  numVertQuads = 10
+#  quadSize = (DIGIT_DATUM_WIDTH/numHorizQuads)*((DIGIT_DATUM_HEIGHT/numVertQuads))
+#  lastx = 0
+#  for horiz in range (1, numHorizQuads+1):
+#      lasty = 0
+#      for vert in range (1, numVertQuads+1):
+#          numPixels = 0
+#          for x in range(lastx, lastx+DIGIT_DATUM_WIDTH/numHorizQuads):
+#              for y in range(lasty, lasty+DIGIT_DATUM_HEIGHT/numVertQuads):
+#                  if datum.getPixel(x, y) > 0:
+#                      numPixels += 1
+#          lasty += DIGIT_DATUM_HEIGHT/numVertQuads
+#          if numPixels > (quadSize/2):
+#              features[featureNumber] = 1
+#          else:
+#              features[featureNumber] = 0
+#          featureNumber += 1
+#          
+#      lastx += DIGIT_DATUM_WIDTH/numHorizQuads
+#  
+#  """#is the number of attached pixels in any column greater than 2/3
+#  maxNumContig = 0
+#  for x in range(DIGIT_DATUM_WIDTH):
+#      numContig = 0
+#      for y in range(DIGIT_DATUM_HEIGHT):
+#          if datum.getPixel(x, y) > 0:
+#              numContig += 1
+#              if (numContig > maxNumContig):
+#                  maxNumContig = numContig
+#          else:
+#              numContig = 0
+#  if maxNumContig > (2*DIGIT_DATUM_HEIGHT/3):
+#      features[featureNumber] = 1
+#  else:
+#      features[featureNumber] = 0
+#  featureNumber += 1"""
     #-----starting bernard' feature
-  halfWidth = math.floor(DIGIT_DATUM_WIDTH/2)
+  halfWidth =  math.floor(DIGIT_DATUM_WIDTH/2)
   halfHeight = math.floor(DIGIT_DATUM_HEIGHT/2)
   numSymPixels = 0
-  symXPixelsTable = {}
-  symYPixelsTable = {}
   for y in range(0, DIGIT_DATUM_HEIGHT):
-      for x in range(0, halfWidth):
+      for x in range(int(halfWidth)):
           # differences in intensity of the pixels after you fold the picture horizontally, like this -> [|]
-          if math.fabs(datum.getPixel(x, y) - datum.getPixel(DIGIT_DATUM_WIDTH-x-1, y)) < 3:
+          if math.fabs(datum.getPixel(x, y) - datum.getPixel(DIGIT_DATUM_WIDTH-x-1, y)) < 2:
               numSymPixels += 1
-      print numSymPixels
-      print '/'
-      features[featureNumber] = numSymPixels
+      if numSymPixels > math.floor(halfWidth/3):
+          features[featureNumber] = 1
+      else:
+          features[featureNumber] = 0
       featureNumber += 1
       numSymPixels = 0
-  print "======================"
   for x in range(DIGIT_DATUM_WIDTH):
-      for y in range(halfHeight):
+      for y in range(int(halfHeight)):
           # differences in intensity of the pixels after you fold the picture vertically, like this -> [-]
-          if math.fabs(datum.getPixel(x, y) - datum.getPixel(x, DIGIT_DATUM_HEIGHT-1-y)) < 3:
+          if math.fabs(datum.getPixel(x, y) - datum.getPixel(x, DIGIT_DATUM_HEIGHT-1-y)) < 2:
               numSymPixels += 1
-      print numSymPixels
-      features[featureNumber] = numSymPixels
+      if numSymPixels > math.floor(halfHeight/3):
+          features[featureNumber] = 1
+      else:
+          features[featureNumber] = 0
       featureNumber += 1
       numSymPixels = 0
       
- #== end of bernard's feature
-  #for each column, count how many contiguous groups there are
-  for x in range(DIGIT_DATUM_WIDTH):
-      indicator = 0
-      numGroups = 0
-      for y in range(DIGIT_DATUM_HEIGHT):
-          if datum.getPixel(x, y) > 0 and indicator == 0:
-              numGroups += 1
-              indicator = 1
-          elif datum.getPixel(x, y)==0 and indicator==1:
-              indicator = 0
-      for k in range(4):
-          if numGroups == k:
-              features[featureNumber] = 1
-          else:
-              features[featureNumber] = 0
-          featureNumber+= 1   
-      
-  #for each row, count how many contiguous groups there are
-  for y in range(DIGIT_DATUM_HEIGHT):
-      numContig = 0
-      numPixels = 0
-      for x in range(DIGIT_DATUM_WIDTH):
-          if datum.getPixel(x, y) > 0 and numPixels == 0:
-              numContig += 1
-              numPixels += 1
-          else:
-              numPixels = 0
-      for k in range(4):
-          if numContig == k:
-              features[featureNumber] = 1
-          else:
-              features[featureNumber] = 0
-          featureNumber+= 1                      
+ #== end of bernard's feature       
   return features
 
 def enhancedFeatureExtractorFace(datum):
