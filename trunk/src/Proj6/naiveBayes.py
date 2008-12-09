@@ -95,8 +95,8 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
             for feature in self.features:
                 #sum = self.condCounts[label][0].getCount(feature) + self.condCounts[label][1].getCount(feature)
                 sum=self.condCounts.getCount((feature,0,label))+self.condCounts.getCount((feature,1,label))
-                self.condProbs[(feature,0,label)] = (self.condCounts.getCount((feature,0,label))+ self.k) / (sum + 1.0*self.k)
-                self.condProbs[(feature,1,label)] = (self.condCounts.getCount((feature,1,label)) + self.k) / (sum +1.0*self.k)
+                self.condProbs[(feature,0,label)] = (self.condCounts.getCount((feature,0,label))+ self.k) / (sum + 2.0*self.k)
+                self.condProbs[(feature,1,label)] = (self.condCounts.getCount((feature,1,label)) + self.k) / (sum +2.0*self.k)
             self.Probs[label] = (self.Counts[label]) / (len(trainingLabels))
         guesses = self.classify(validationData)
         correctGuesses = 0.0
