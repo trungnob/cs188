@@ -19,13 +19,13 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
     for label in self.legalLabels:
       self.weights[label] = util.Counter() # this is the data-structure you should use
     self.Counts = {}
-    self.condCounts = {}
-    for label in self.legalLabels:
-        self.condCounts[label] = [util.Counter(), util.Counter()]
+    self.condCounts = util.Counter()
+#    for label in self.legalLabels:
+#        self.condCounts[label] = [util.Counter(), util.Counter()]
     for label in self.legalLabels:
         self.Counts[label]=0;
-        self.condCounts[label][0]=util.Counter()
-        self.condCounts[label][1]=util.Counter()   
+#        self.condCounts[label][0]=util.Counter()
+#        self.condCounts[label][1]=util.Counter()   
         
   def setSmoothing(self, k):
     """
@@ -74,36 +74,40 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
         self.Counts[trainingLabels[i]] += 1.00
         for data in trainingData[i].keys():
             if trainingData[i].getCount(data) == 0:
-                self.condCounts[trainingLabels[i]][0].incrementCount(data, 1.00)
+#                self.condCounts[trainingLabels[i]][0].incrementCount(data, 1.00)
+                self.condCounts.incrementCount((data,0,trainingLabels[i]),1) #condCounts as c(Fi=fi|Y=trainingLabels[i])
             else:
-                self.condCounts[trainingLabels[i]][1].incrementCount(data, 1.00)
-    self.Probs = {}
-    self.condProbs = {}
+                self.condCounts.incrementCount((data,1,trainingLabels[i]),1)
+   
+    self.Probs = util.Counter()
+    self.condProbs = util.Counter()
     currentMaxProb = 0.0
-    currentMaxProbs = []
-    currentMaxCondProbs = []
-    for label in self.legalLabels:
-        self.condProbs[label] = [util.Counter(), util.Counter()]
-    for label in self.legalLabels:
-        self.Probs[label]=0;
-        self.condProbs[label][0]=util.Counter()
-        self.condProbs[label][1]=util.Counter()   
+#    currentMaxProbs =
+#    currentMaxCondProbs = []
+#    for label in self.legalLabels:
+#        self.condProbs[label] = [util.Counter(), util.Counter()]
+#    for label in self.legalLabels:
+#        self.Probs[label]=0;
+#        self.condProbs[label][0]=util.Counter()
+#        self.condProbs[label][1]=util.Counter()   
     for k in kgrid:
         for label in self.legalLabels:
             for feature in self.features:
-                sum = self.condCounts[label][0].getCount(feature) + self.condCounts[label][1].getCount(feature)
-                self.condProbs[label][0][feature] = (self.condCounts[label][0].getCount(feature) + self.k) / (sum + 2.0*self.k)
-                self.condProbs[label][1][feature] = (self.condCounts[label][1].getCount(feature) + self.k) / (sum + 2.0*self.k)
+                #sum = self.condCounts[label][0].getCount(feature) + self.condCounts[label][1].getCount(feature)
+                sum=self.condCounts.getCount((feature,0,label))+self.condCounts.getCount((feature,1,label))
+                self.condProbs[(feature,0,label)] = (self.condCounts.getCount((feature,0,label))+ self.k) / (sum + 1.0*self.k)
+                self.condProbs[(feature,1,label)] = (self.condCounts.getCount((feature,1,label)) + self.k) / (sum +1.0*self.k)
             self.Probs[label] = (self.Counts[label]) / (len(trainingLabels))
         guesses = self.classify(validationData)
         correctGuesses = 0.0
         for i in range(0, len(validationLabels)):
             if guesses[i] == validationLabels[i]:
                 correctGuesses += 1.0
-        currentProb = (correctGuesses/len(validationLabels)*1.0)
+        currentProb = 1.0*(correctGuesses/len(validationLabels))
         if currentProb > currentMaxProb:
             currentMaxProb = currentProb
             self.k = k
+
     return self.k
     
   def classify(self, testData):
@@ -131,9 +135,10 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
         logJoint[label] = math.log(self.Probs[label])
         for data in datum.keys():
             if datum[data] == 0:
-                logJoint[label] += math.log(self.condProbs[label][0][data])
+                logJoint[label] += math.log(self.condProbs[(data,0,label)])
             else:
-                logJoint[label] += math.log(self.condProbs[label][1][data])
+            
+                logJoint[label] += math.log(self.condProbs[(data,1,label)])
     return logJoint
   
   def findHighOddsFeatures(self, class1, class2):
