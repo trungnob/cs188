@@ -104,7 +104,6 @@ class NaiveBayesClassifier(classificationMethod.ClassificationMethod):
         if currentProb > currentMaxProb:
             currentMaxProb = currentProb
             self.k = k
-    print self.condProbs[0][1]
     return self.k
     
   def classify(self, testData):
